@@ -234,7 +234,7 @@
         ],
         "sort-imports": "error",
         "sort-vars": "off",
-        "space-before-blocks": "off",
+        "space-before-blocks": 1,
         "space-before-function-paren": "off",
         "space-in-parens": [
             "error",
