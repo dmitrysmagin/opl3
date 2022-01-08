@@ -1,7 +1,7 @@
 var extend = require('extend');
 var GENMIDI = require('wad-genmidi');
 
-function MUS(opl, options){
+function MUS(opl, options) {
     options = options || {};
 
     this.opl = opl;
@@ -83,7 +83,7 @@ extend(MUS.prototype, {
     },
     PERCUSSION: 15,
     MOD_MIN: 40,
-    load: function(buffer){
+    load: function (buffer) {
         this.data = new DataView(buffer.buffer || buffer);
 
         if (this.data.getInt32(0) != this.MUS) throw new Error('Buffer is not a MUS file');
@@ -92,22 +92,22 @@ extend(MUS.prototype, {
         this.channelCount = this.data.getUint16(8, true);
         this.secondaryChannels = this.data.getUint16(10, true);
         this.instrumentsCount = this.data.getUint16(12, true);
-        
+
         this.channelInstruments = [];
-        for (var i = 0, j = 16; i < this.instrumentsCount; i++, j += 2){
+        for (var i = 0, j = 16; i < this.instrumentsCount; i++, j += 2) {
             this.channelInstruments.push(this.data.getUint16(j, true));
         }
 
         this.channels = [];
         this.OPLchannels = this.OPL3CHANNELS;
-        for (var i = 0; i < this.OPLchannels; i++){
+        for (var i = 0; i < this.OPLchannels; i++) {
             this.channels[i] = {};
         }
 
         this.position = 0;
 
         this.voices = [];
-        for (var i = 0; i < this.OPLchannels; i++){
+        for (var i = 0; i < this.OPLchannels; i++) {
             this.voices[i] = {
                 channel: -1,
                 note: 0,
@@ -137,27 +137,27 @@ extend(MUS.prototype, {
 
         this.rewind();
     },
-    update: function(){
-        if (this.position >= this.data.byteLength){
+    update: function () {
+        if (this.position >= this.data.byteLength) {
             return false;
         }
 
         var last = 0;
-        while (!last){
+        while (!last) {
             var deltaTime = this.deltaTime;
             var event = this.data.getUint8(this.position++);
             var channel = event & 0xf;
             var type = (event & 0x70) >> 4;
             last = event & 0x80;
-            
+
             var midiChannel = channel;
             if (midiChannel == 15) midiChannel = 9;
-	        else if (midiChannel >= 9) midiChannel++;
-            
-            if (this.midiTrack){
-                if (!this.chanUsed[channel]){
+            else if (midiChannel >= 9) midiChannel++;
+
+            if (this.midiTrack) {
+                if (!this.chanUsed[channel]) {
                     this.chanUsed[channel] = true;
-                    
+
                     this.midiTrack.addEvent(new (this.Midi.Event)({
                         type: this.Midi.Event.CONTROLLER,
                         channel: midiChannel,
@@ -166,13 +166,13 @@ extend(MUS.prototype, {
                     }));
                 }
             }
-            
-            switch (type){
+
+            switch (type) {
                 case 0: //release note
                     var note = this.data.getUint8(this.position++) & 0x7f;
                     this.playingcount--;
                     this.OPLreleaseNote(channel, note);
-                    if (this.midiTrack){
+                    if (this.midiTrack) {
                         this.midiTrack.noteOff(midiChannel, note, deltaTime);
                     }
                     break;
@@ -180,20 +180,20 @@ extend(MUS.prototype, {
                     var data = this.data.getUint8(this.position++);
                     var note = data & 0x7f;
                     var volume = this.driverdata.channelLastVolume[channel];
-                    if (data & 0x80){
+                    if (data & 0x80) {
                         volume = this.data.getUint8(this.position++) & 0x7f;
                     }
-                    
+
                     this.playingcount++;
                     this.OPLplayNote(channel, note, volume);
-                    if (this.midiTrack){
+                    if (this.midiTrack) {
                         this.midiTrack.noteOn(midiChannel, note, deltaTime, volume);
                     }
                     break;
                 case 2: //pitch wheel
                     var pitch = this.data.getUint8(this.position++);
                     this.OPLpitchWheel(channel, ((pitch & 1) << 6) | (((pitch >> 1) & 127) << 7));
-                    if (this.midiTrack){
+                    if (this.midiTrack) {
                         this.midiTrack.addEvent(new (this.Midi.Event)({
                             type: this.Midi.Event.PITCH_BEND,
                             channel: midiChannel,
@@ -205,9 +205,9 @@ extend(MUS.prototype, {
                     break;
                 case 3: //system event
                     var number = this.data.getUint8(this.position++) & 0x7f;
-                    if (number < 10 || number > 14){
+                    if (number < 10 || number > 14) {
                         // no_op
-                    }else if (this.midiTrack){
+                    } else if (this.midiTrack) {
                         this.midiTrack.addEvent(new (this.Midi.Event)({
                             type: this.Midi.Event.CONTROLLER,
                             channel: midiChannel,
@@ -220,15 +220,15 @@ extend(MUS.prototype, {
                 case 4: //change controller
                     var ctrl = this.data.getUint8(this.position++) & 0x7f;
                     var value = this.data.getUint8(this.position++) & 0x7f;
-                    if (ctrl == 0){
+                    if (ctrl == 0) {
                         this.OPLprogramChange(channel, value);
-                        if (this.midiTrack){
+                        if (this.midiTrack) {
                             this.midiTrack.instrument(midiChannel, value, deltaTime);
                         }
-                    }else{
+                    } else {
                         if (this.CtrlTranslate[ctrl] == 121) this.OPLresetControllers(channel, 100);
                         else this.OPLchangeControl(channel, this.MIDItoOPLctrl[this.CtrlTranslate[ctrl]], value);
-                        if (this.midiTrack && ctrl > 0 && ctrl < 10){
+                        if (this.midiTrack && ctrl > 0 && ctrl < 10) {
                             this.midiTrack.addEvent(new (this.Midi.Event)({
                                 type: this.Midi.Event.CONTROLLER,
                                 channel: midiChannel,
@@ -242,21 +242,21 @@ extend(MUS.prototype, {
                 case 6: //score end
                     this.OPLstopMusic();
                     this.OPLshutup();
-                    if (this.midiTrack){
+                    if (this.midiTrack) {
                         this.midiTrack.addEvent(new (this.Midi.MetaEvent)({
                             type: this.Midi.MetaEvent.END_OF_TRACK
                         }));
-                        
+
                         this.midiBuffer = this.midiFile.toBytes();
                     }
-                    
+
                     this.rewind();
                     return false;
             }
 
             var time = 0;
-            if (event & 0x80){
-                while (true){
+            if (event & 0x80) {
+                while (true) {
                     var byte = this.data.getUint8(this.position++);
                     time = time * 128 + (byte & 0x7f);
                     if (!(byte & 0x80)) break;
@@ -264,25 +264,25 @@ extend(MUS.prototype, {
 
                 this.deltaTime = time;
                 this.MLtime += time;
-            }else this.deltaTime = 0;
+            } else this.deltaTime = 0;
         }
-        
+
         this.wait = time * 1 / 140;
         return true;
     },
-    refresh: function(){
+    refresh: function () {
         return this.wait;
     },
-    rewind: function(){
-        if (this.Midi){
+    rewind: function () {
+        if (this.Midi) {
             this.midiFile = new this.Midi.File();
             this.midiTrack = new this.Midi.Track();
             this.midiFile.addTrack(this.midiTrack);
-            
+
             this.midiTrack.setTempo(65);
             this.chanUsed = [];
         }
-        
+
         this.position = this.scoreStart;
         this.deltaTime = 0;
         this.playingcount = 0;
@@ -291,20 +291,20 @@ extend(MUS.prototype, {
         this.OPLstopMusic();
         this.OPLplayMusic(127);
     },
-    writeFrequency: function(slot, note, pitch, keyon){
+    writeFrequency: function (slot, note, pitch, keyon) {
         this.OPLwriteFreq(slot, note, pitch, keyon);
     },
-    writeModulation: function(slot, instr, state){
+    writeModulation: function (slot, instr, state) {
         if (state) state = 0x40;
         this.OPLwriteChannel(0x20, slot, (instr.feedback & 1)
             ? (instr.modulatorTremolo | state) : instr.modulatorTremolo,
-		    instr.carrierTremolo | state);
+            instr.carrierTremolo | state);
     },
-    calcVolume: function(channelVolume, channelExpression, noteVolume){
+    calcVolume: function (channelVolume, channelExpression, noteVolume) {
         noteVolume = ((channelVolume * channelExpression * noteVolume) / (127 * 127)) | 0;
         return (noteVolume > 127) ? 127 : noteVolume;
     },
-    occupyChannel: function(slot, channel, note, volume, instrument, secondary){
+    occupyChannel: function (slot, channel, note, volume, instrument, secondary) {
         var instr;
         var ch = this.channels[slot];
 
@@ -325,11 +325,11 @@ extend(MUS.prototype, {
         if (secondary) instr = instrument.voices[1];
         else instr = instrument.voices[0];
         ch.instr = instr;
-        if (channel != this.PERCUSSION && !(instrument.fixedPitch)){
-            if ((note += instr.baseNoteOffset) < 0){
-                while ((note += 12) < 0){}
-            }else if (note > this.HIGHEST_NOTE){
-                while ((note -= 12) > this.HIGHEST_NOTE){}
+        if (channel != this.PERCUSSION && !(instrument.fixedPitch)) {
+            if ((note += instr.baseNoteOffset) < 0) {
+                while ((note += 12) < 0) { }
+            } else if (note > this.HIGHEST_NOTE) {
+                while ((note -= 12) > this.HIGHEST_NOTE) { }
             }
         }
         ch.realnote = note;
@@ -342,56 +342,56 @@ extend(MUS.prototype, {
 
         return slot;
     },
-    releaseChannel: function(slot, killed){
+    releaseChannel: function (slot, killed) {
         var ch = this.channels[slot];
         this.writeFrequency(slot, ch.realnote, ch.pitch, 0);
         ch.channel |= this.CH_FREE;
         ch.time = this.MLtime;
         ch.flags = this.CH_FREE;
-        if (killed){
+        if (killed) {
             this.OPLwriteChannel(0x80, slot, 0x0f, 0x0f);  // release rate - fastest
             this.OPLwriteChannel(0x40, slot, 0x3f, 0x3f);  // no volume
         }
         return slot;
     },
-    releaseSustain: function(channel){
-        for (var i = 0; i < this.OPLchannels; i++){
-            if (this.channels[i].channel == channel && this.channels[i].flags & this.CH_SUSTAIN){
+    releaseSustain: function (channel) {
+        for (var i = 0; i < this.OPLchannels; i++) {
+            if (this.channels[i].channel == channel && this.channels[i].flags & this.CH_SUSTAIN) {
                 this.releaseChannel(i, 0);
             }
         }
         return 0;
     },
-    findFreeChannel: function(flag, channel, note){
+    findFreeChannel: function (flag, channel, note) {
         var last = -1;
         var oldest = -1;
         var oldesttime = this.MLtime;
         var bestvoice = 0;
 
-        for (var i = 0; i < this.OPLchannels; ++i){
+        for (var i = 0; i < this.OPLchannels; ++i) {
             if (++last == this.OPLchannels)	/* use cyclic `Next Fit' algorithm */
                 last = 0;
             if (this.channels[last].flags & this.CH_FREE)
                 return last;
         }
 
-        if (flag & 1){ // No free channels good enough
+        if (flag & 1) { // No free channels good enough
             return -1;
         }
 
         /* find some 2nd-voice channel and determine the oldest */
-        for(var i = 0; i < this.OPLchannels; i++){
-            if (this.channels[i].flags & this.CH_SECONDARY){
+        for (var i = 0; i < this.OPLchannels; i++) {
+            if (this.channels[i].flags & this.CH_SECONDARY) {
                 this.releaseChannel(i, 1);
                 return i;
-            }else if (this.channels[i].time < oldesttime){
+            } else if (this.channels[i].time < oldesttime) {
                 oldesttime = this.channels[i].time;
                 oldest = i;
             }
         }
 
         /* if possible, kill the oldest channel */
-        if (!(flag & 2) && oldest != -1){
+        if (!(flag & 2) && oldest != -1) {
             this.releaseChannel(oldest, 1);
             return oldest;
         }
@@ -399,76 +399,76 @@ extend(MUS.prototype, {
         /* can't find any free channel */
         return -1;
     },
-    getInstrument: function(channel, note){
+    getInstrument: function (channel, note) {
         var instrnumber;
 
-        if (channel == this.PERCUSSION){
+        if (channel == this.PERCUSSION) {
             if (note < 35 || note > 81) return null; /* wrong percussion number */
             instrnumber = note + (128 - 35);
-        }else{
+        } else {
             instrnumber = this.driverdata.channelInstr[channel];
         }
 
         return this.instruments[instrnumber] || null;
     },
-    OPLplayNote: function(channel, note, volume){
+    OPLplayNote: function (channel, note, volume) {
         if (volume == 0) return this.OPLreleaseNote(channel, note);
 
         var instr = this.getInstrument(channel, note);
         if (!instr) return;
 
         var i = this.findFreeChannel((channel == this.PERCUSSION) ? 2 : 0, channel, note);
-        if (i >= 0){
+        if (i >= 0) {
             this.occupyChannel(i, channel, note, volume, instr, 0);
-            if (instr.doubleVoice){
+            if (instr.doubleVoice) {
                 i = this.findFreeChannel((channel == this.PERCUSSION) ? 3 : 1, channel, note);
-                if (i >= 0){
+                if (i >= 0) {
                     this.occupyChannel(i, channel, note, volume, instr, 1);
                 }
             }
         }
     },
-	OPLreleaseNote: function(channel, note){
+    OPLreleaseNote: function (channel, note) {
         var sustain = this.driverdata.channelSustain[channel];
 
-        for (var i = 0; i < this.OPLchannels; i++){
-            if (this.channels[i].channel == channel && this.channels[i].note == note){
+        for (var i = 0; i < this.OPLchannels; i++) {
+            if (this.channels[i].channel == channel && this.channels[i].note == note) {
                 if (sustain < 0x40) this.releaseChannel(i, 0);
                 else this.channels[i].flags |= this.CH_SUSTAIN;
             }
         }
     },
-	OPLpitchWheel: function(channel, pitch){
+    OPLpitchWheel: function (channel, pitch) {
         // Convert pitch from 14-bit to 7-bit, then scale it, since the player
         // code only understands sensitivities of 2 semitones.
         pitch = ((pitch - 8192) * this.driverdata.channelPitchSens[channel] / (200 * 128) + 64) | 0;
         this.driverdata.channelPitch[channel] = pitch;
-        for (var i = 0; i < this.OPLchannels; i++){
+        for (var i = 0; i < this.OPLchannels; i++) {
             var ch = this.channels[i];
-            if (ch.channel == channel){
+            if (ch.channel == channel) {
                 ch.time = this.MLtime;
                 ch.pitch = ch.finetune + pitch;
                 this.writeFrequency(i, ch.realnote, ch.pitch, 1);
             }
         }
     },
-	OPLchangeControl: function(channel, controller, value){
-        switch (controller){
+    OPLchangeControl: function (channel, controller, value) {
+        switch (controller) {
             case this.MUSctrl.ctrlPatch:			/* change instrument */
                 this.OPLprogramChange(channel, value);
                 break;
 
             case this.MUSctrl.ctrlModulation:
                 this.driverdata.channelModulation[channel] = value;
-                for (var i = 0; i < this.OPLchannels; i++){
+                for (var i = 0; i < this.OPLchannels; i++) {
                     var ch = this.channels[i];
-                    if (ch.channel == channel){
+                    if (ch.channel == channel) {
                         var flags = ch.flags;
                         ch.time = this.MLtime;
-                        if (value >= this.MOD_MIN){
+                        if (value >= this.MOD_MIN) {
                             ch.flags |= this.CH_VIBRATO;
                             if (ch.flags != flags) this.writeModulation(i, ch.instr, 1);
-                        }else{
+                        } else {
                             ch.flags &= ~this.CH_VIBRATO;
                             if (ch.flags != flags) this.writeModulation(i, ch.instr, 0);
                         }
@@ -477,15 +477,15 @@ extend(MUS.prototype, {
                 break;
             case this.MUSctrl.ctrlVolume:		/* change volume */
                 this.driverdata.channelVolume[channel] = value;
-                /* fall-through */
+            /* fall-through */
             case this.MUSctrl.ctrlExpression:	/* change expression */
-                if (controller == this.MUSctrl.ctrlExpression){
+                if (controller == this.MUSctrl.ctrlExpression) {
                     this.driverdata.channelExpression[channel] = value;
                 }
 
-                for (var i = 0; i < this.OPLchannels; i++){
+                for (var i = 0; i < this.OPLchannels; i++) {
                     var ch = this.channels[i];
-                    if (ch.channel == channel){
+                    if (ch.channel == channel) {
                         ch.time = this.MLtime;
                         ch.realvolume = this.calcVolume(this.driverdata.channelVolume[channel],
                             this.driverdata.channelExpression[channel], ch.volume);
@@ -496,9 +496,9 @@ extend(MUS.prototype, {
 
             case this.MUSctrl.ctrlPan:			/* change pan (balance) */
                 this.driverdata.channelPan[channel] = value -= 64;
-                for (var i = 0; i < this.OPLchannels; i++){
+                for (var i = 0; i < this.OPLchannels; i++) {
                     var ch = this.channels[i];
-                    if (ch.channel == channel){
+                    if (ch.channel == channel) {
                         ch.time = this.MLtime;
                         this.OPLwritePan(i, ch.instr, value);
                     }
@@ -509,16 +509,16 @@ extend(MUS.prototype, {
                 if (value < 0x40) this.releaseSustain(channel);
                 break;
             case this.MUSctrl.ctrlNotesOff:			/* turn off all notes that are not sustained */
-                for (var i = 0; i < this.OPLchannels; ++i){
-                    if (this.channels[i].channel == channel){
+                for (var i = 0; i < this.OPLchannels; ++i) {
+                    if (this.channels[i].channel == channel) {
                         if (this.driverdata.channelSustain[channel] < 0x40) this.releaseChannel(i, 0);
                         else this.channels[i].flags |= this.CH_SUSTAIN;
                     }
                 }
                 break;
             case this.MUSctrl.ctrlSoundsOff:			/* release all notes for this channel */
-                for (var i = 0; i < this.OPLchannels; ++i){
-                    if (this.channels[i].channel == channel){
+                for (var i = 0; i < this.OPLchannels; ++i) {
+                    if (this.channels[i].channel == channel) {
                         this.releaseChannel(i, 0);
                     }
                 }
@@ -534,21 +534,21 @@ extend(MUS.prototype, {
                 this.driverdata.channelRPN[channel] = 0x3fff;
                 break;
             case this.MUSctrl.ctrlDataEntryHi:
-                if (this.driverdata.channelRPN[channel] == 0){
+                if (this.driverdata.channelRPN[channel] == 0) {
                     this.driverdata.channelPitchSens[channel] = value * 100 + (this.driverdata.channelPitchSens[channel] % 100);
                 }
                 break;
             case this.MUSctrl.ctrlDataEntryLo:
-                if (this.driverdata.channelRPN[channel] == 0){
+                if (this.driverdata.channelRPN[channel] == 0) {
                     this.driverdata.channelPitchSens[channel] = value + Math.floor(this.driverdata.channelPitchSens[channel] / 100) * 100;
                 }
                 break;
         }
     },
-	OPLprogramChange: function(channel, value){
+    OPLprogramChange: function (channel, value) {
         this.driverdata.channelInstr[channel] = value;
     },
-	OPLresetControllers: function(chan, vol){
+    OPLresetControllers: function (chan, vol) {
         this.driverdata.channelVolume[chan] = vol;
         this.driverdata.channelExpression[chan] = 127;
         this.driverdata.channelSustain[chan] = 0;
@@ -557,36 +557,36 @@ extend(MUS.prototype, {
         this.driverdata.channelRPN[chan] = 0x3fff;
         this.driverdata.channelPitchSens[chan] = 200;
     },
-	OPLplayMusic: function(vol){
-        for (var i = 0; i < this.OPL3CHANNELS; i++){
+    OPLplayMusic: function (vol) {
+        for (var i = 0; i < this.OPL3CHANNELS; i++) {
             this.OPLresetControllers(i, vol);
         }
     },
-	OPLstopMusic: function(){
-        for (var i = 0; i < this.OPLchannels; i++){
-            if (!(this.channels[i].flags & this.CH_FREE)){
+    OPLstopMusic: function () {
+        for (var i = 0; i < this.OPLchannels; i++) {
+            if (!(this.channels[i].flags & this.CH_FREE)) {
                 this.releaseChannel(i, 1);
             }
         }
     },
-	OPLloadBank: function(data){},
-    OPLwriteChannel: function(regbase, channel, data1, data2){
+    OPLloadBank: function (data) { },
+    OPLwriteChannel: function (regbase, channel, data1, data2) {
         var which = (channel / this.OPL2CHANNELS) | 0;
         var reg = regbase + this.op_num[channel % this.OPL2CHANNELS];
         this.OPLwriteReg(which, reg, data1);
         this.OPLwriteReg(which, reg + 3, data2);
     },
-	OPLwriteValue: function(regbase, channel, value){
+    OPLwriteValue: function (regbase, channel, value) {
         var which = (channel / this.OPL2CHANNELS) | 0;
         var reg = regbase + (channel % this.OPL2CHANNELS);
         this.OPLwriteReg(which, reg, value);
     },
-	OPLwriteFreq: function(channel, note, pitch, keyon){
+    OPLwriteFreq: function (channel, note, pitch, keyon) {
         var octave = 0;
         var j = (note << 5) + pitch;
 
         if (j < 0) j = 0;
-        else if (j >= 284){
+        else if (j >= 284) {
             j -= 284;
             octave = (j / (32 * 12)) | 0;
             if (octave > 7) octave = 7;
@@ -597,21 +597,21 @@ extend(MUS.prototype, {
         this.OPLwriteValue(0xa0, channel, i & 0xff);
         this.OPLwriteValue(0xb0, channel, (i >> 8) | (keyon << 5));
     },
-	OPLconvertVolume: function(data, volume){
+    OPLconvertVolume: function (data, volume) {
         return 0x3f - (((0x3f - data) * this.volumetable[volume <= 127 ? volume : 127]) >> 7);
     },
-	OPLpanVolume: function(volume, pan){
+    OPLpanVolume: function (volume, pan) {
         return pan >= 0 ? volume : ((volume * (pan + 64)) / 64) | 0;
     },
-	OPLwriteVolume: function(channel, instr, volume){
-        if (instr){
+    OPLwriteVolume: function (channel, instr, volume) {
+        if (instr) {
             this.OPLwriteChannel(0x40, channel, ((instr.feedback & 1) ?
                 this.OPLconvertVolume(instr.modulatorOutput, volume) : instr.modulatorOutput) | instr.modulatorKey,
                 this.OPLconvertVolume(instr.carrierOutput, volume) | instr.carrierKey);
         }
     },
-	OPLwritePan: function(channel, instr, pan){
-        if (instr){
+    OPLwritePan: function (channel, instr, pan) {
+        if (instr) {
             var bits;
             if (pan < -36) bits = 0x10;
             else if (pan > 36) bits = 0x20;
@@ -620,7 +620,7 @@ extend(MUS.prototype, {
             this.OPLwriteValue(0xc0, channel, instr.feedback | bits);
         }
     },
-	OPLwriteInstrument: function(channel, instr){
+    OPLwriteInstrument: function (channel, instr) {
         this.OPLwriteChannel(0x40, channel, 0x3f, 0x3f); //no volume
         this.OPLwriteChannel(0x20, channel, instr.modulatorTremolo, instr.carrierTremolo);
         this.OPLwriteChannel(0x60, channel, instr.modulatorAttack, instr.carrierAttack);
@@ -628,27 +628,27 @@ extend(MUS.prototype, {
         this.OPLwriteChannel(0xe0, channel, instr.modulatorWaveform, instr.carrierWaveform);
         this.OPLwriteValue(0xc0, channel, instr.feedback | 0x30);
     },
-	OPLshutup: function(){
-        for(i = 0; i < this.OPL3CHANNELS; i++){
+    OPLshutup: function () {
+        for (i = 0; i < this.OPL3CHANNELS; i++) {
             this.OPLwriteChannel(0x40, i, 0x3f, 0x3f);	// turn off volume
             this.OPLwriteChannel(0x60, i, 0xff, 0xff);	// the fastest attack, decay
             this.OPLwriteChannel(0x80, i, 0x0f, 0x0f);	// ... and release
             this.OPLwriteValue(0xb0, i, 0);		// KEY-OFF
         }
     },
-	OPLwriteInitState: function(initopl3){
+    OPLwriteInitState: function (initopl3) {
         this.OPLwriteReg(1, 0x105, 0x01);	// enable YMF262/OPL3 mode
         this.OPLwriteReg(1, 0x104, 0x00);	// disable 4-operator mode
         this.OPLwriteReg(0, 0x01, 0x20);	// enable Waveform Select
-		this.OPLwriteReg(0, 0x08, 0x40);	// turn off CSW mode
-		this.OPLwriteReg(0, 0xbd, 0x00);	// set vibrato/tremolo depth to low, set melodic mode
+        this.OPLwriteReg(0, 0x08, 0x40);	// turn off CSW mode
+        this.OPLwriteReg(0, 0xbd, 0x00);	// set vibrato/tremolo depth to low, set melodic mode
         this.OPLshutup();
     },
-	OPLinit: function(numchips, stereo, initopl3){
+    OPLinit: function (numchips, stereo, initopl3) {
         this.OPLwriteInitState(true);
     },
-	OPLdeinit: function(){},
-	OPLwriteReg: function(which, reg, data){
+    OPLdeinit: function () { },
+    OPLwriteReg: function (which, reg, data) {
         if (this.onlyMidi) return;
         if (which == 1 && reg > 0x100) reg -= 0x100
         this.opl.write(which, reg, data);
