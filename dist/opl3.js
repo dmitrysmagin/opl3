@@ -17048,6 +17048,12 @@ _dereq_('setimmediate');
 var OPL3 = _dereq_('./opl3');
 var Normalizer = _dereq_('pcm-normalizer');
 
+var DRO = _dereq_('../format/dro');
+var IMF = _dereq_('../format/imf');
+var LAA = _dereq_('../format/laa');
+var MUS = _dereq_('../format/mus');
+var RAW = _dereq_('../format/raw');
+
 var currentScriptSrc = null;
 try {
     currentScriptSrc = document.currentScript.src;
@@ -17107,6 +17113,21 @@ function Player(format, options) {
             }
         }
     };
+
+    var detectFormat = function (buffer) {
+        const header = function (offset, length) {
+            return String.fromCharCode.apply(null, new Uint8Array(buffer.slice(offset, length)));
+        }
+
+        if (header(0, 3) == 'ADL') return LAA;
+        if (header(0, 8) == 'RAWADATA') return RAW;
+        if (header(0, 8) == 'DBRAWOPL') return DRO;
+        if (header(0, 4) == 'MUS\x1a') return MUS;
+        // IMF has no ID :(
+
+        return null;
+    };
+
     // Note: this 'load' remains in the Worker
     var load = function (buffer, callback, postMessage) {
         return new Promise(function (resolve, reject) {
@@ -17135,6 +17156,9 @@ function Player(format, options) {
 
                 if (buffer instanceof ArrayBuffer) buffer = new Buffer.from(buffer);
                 initPostMessage(postMessage);
+
+                format = format || detectFormat(buffer);
+                if (!format) throw 'File format not detected';
 
                 var player = new format(new OPL3(), options);
                 player.load(buffer);
@@ -17296,11 +17320,13 @@ function Player(format, options) {
             this.load = function (buffer, callback, postMessage) {
                 initPostMessage(postMessage);
 
-                var formatName = format.name;
+                format = format || detectFormat(buffer);
+                if (!format) throw 'File format not detected';
+
                 var workerSrc =
                     'importScripts("' + currentScriptSrc + '");\n' +
                     'onmessage = function(msg) {\n' +
-                    '   var player = new OPL3.Player(OPL3.format.' + formatName + ', msg.data.options);\n' +
+                    '   var player = new OPL3.Player(null, msg.data.options);\n' +
                     '   player.load(msg.data.buffer, ' + (typeof callback == 'function' ? 'function(err, buffer) {\n' +
                     '       if (err) throw err;\n' +
                     '       postMessage({ cmd: "callback", value: buffer }, [buffer]);\n' +
@@ -17353,7 +17379,7 @@ function Player(format, options) {
 util.inherits(Player, Readable);
 module.exports = Player;
 }).call(this)}).call(this,_dereq_('_process'),_dereq_("buffer").Buffer,_dereq_("timers").setImmediate)
-},{"./opl3":41,"_process":11,"buffer":3,"pcm-normalizer":46,"setimmediate":47,"stream":13,"stream-buffers":50,"timers":29,"util":33}],43:[function(_dereq_,module,exports){
+},{"../format/dro":34,"../format/imf":36,"../format/laa":37,"../format/mus":38,"../format/raw":39,"./opl3":41,"_process":11,"buffer":3,"pcm-normalizer":46,"setimmediate":47,"stream":13,"stream-buffers":50,"timers":29,"util":33}],43:[function(_dereq_,module,exports){
 DataView.prototype.getString = function(offset, length){
     var end = typeof length == 'number' ? offset + length : this.byteLength;
     var text = '';
