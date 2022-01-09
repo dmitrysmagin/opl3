@@ -1,12 +1,9 @@
-var extend = require('extend');
+class RAW {
+    constructor(opl) {
+        this.opl = opl;
+    }
 
-function RAW(opl) {
-    this.opl = opl;
-}
-module.exports = RAW;
-
-extend(RAW.prototype, {
-    load: function (buffer) {
+    load(buffer) {
         var header = new Buffer.from(buffer.buffer).slice(0, 8).toString();
         if (header != 'RAWADATA') throw new Error('Buffer is not a "Rdos Raw OPL Capture" file');
 
@@ -14,8 +11,9 @@ extend(RAW.prototype, {
         this.clock = this.data.getUint16(8, true);
 
         this.rewind();
-    },
-    update: function () {
+    }
+
+    update() {
         this.delay = 0;
         while (!this.songend && !this.delay && this.position < this.data.byteLength) {
             var value = this.data.getUint8(this.position++);
@@ -44,18 +42,23 @@ extend(RAW.prototype, {
         }
 
         return !this.songend && this.delay;
-    },
-    rewind: function () {
+    }
+
+    rewind() {
         this.songend = false;
         this.delay = 0;
         this.position = 10;
         this.bank = 0;
         this.opl.write(0x01, 0x20);
-    },
-    refresh: function () {
+    }
+
+    refresh() {
         return this.delay / (1193180 / (this.clock || 0xffff));
-    },
-    midi_write_adlib: function (r, v) {
+    }
+
+    midi_write_adlib(r, v) {
         this.opl.write(this.bank, r, v);
     }
-});
+}
+
+module.exports = RAW;
