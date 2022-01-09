@@ -1,13 +1,10 @@
-var extend = require('extend');
+class DRO {
+    constructor(opl) {
+        this.opl = opl;
+        this.hardwareType = ['OPL2', 'Dual OPL2', 'OPL3'];
+    }
 
-function DRO(opl) {
-    this.opl = opl;
-}
-module.exports = DRO;
-
-extend(DRO.prototype, {
-    hardwareType: ['OPL2', 'Dual OPL2', 'OPL3'],
-    load: function (buffer) {
+    load(buffer) {
         var header = new Buffer.from(buffer.buffer).slice(0, 8).toString();
         if (header != 'DBRAWOPL') throw new Error('Buffer is not a "DOSBox Raw OPL" file');
 
@@ -29,8 +26,9 @@ extend(DRO.prototype, {
         }
 
         this.start = this.position;
-    },
-    update: function () {
+    }
+
+    update() {
         this.delay = 0;
         while (!this.delay && this.position < this.data.byteLength) {
             var index = this.data.getUint8(this.position);
@@ -58,14 +56,17 @@ extend(DRO.prototype, {
         }
 
         return false;
-    },
-    rewind: function () {
+    }
+
+    rewind() {
         this.position = this.start;
-    },
-    refresh: function () {
+    }
+
+    refresh() {
         return this.delay / 8 * 1 / 120;
-    },
-    midi_write_adlib: function (r, v) {
+    }
+
+    midi_write_adlib(r, v) {
         var a = 0;
         if (r >= 0x100) {
             a = 1;
@@ -74,4 +75,6 @@ extend(DRO.prototype, {
 
         this.opl.write(a, r, v);
     }
-});
+}
+
+module.exports = DRO;
