@@ -2,30 +2,76 @@
 <html>
 <head>
 	<title>OPL3</title>
-	<script type="text/javascript" src="../dist/opl3.js"></script>
+	<script id="opl3" type="text/javascript" src="../dist/opl3.js"></script>
 </head>
 <body>
-	<script type="text/javascript">
-        fetch('data/D_INTRO.mus').then(function(res){
-            return res.arrayBuffer();
-        }).then(function(mus){
-            fetch('data/GENMIDI.OP2').then(function(res){
-                return res.arrayBuffer();
-            }).then(function(genmidi){
-                var player = new OPL3.Player(OPL3.format.MUS, {
-                    instruments: genmidi,
-                    prebuffer: 3000,
-                    volume: 3
-                });
-                player.play(mus);
-                player.on('progress', function(){
-                    document.body.innerHTML = player.position + 'ms / ' + player.length + 'ms';
-                });
-                player.on('position', function(ms){
-                    document.body.innerHTML = ms + 'ms / ' + player.length + 'ms';
-                });
+    <div class="counter"></div>
+    <div>
+        <label for="fileUpload">Select a file:</label>
+        <input type="file" id="fileUpload" name="fileUpload" accept=".raw,.dro,.laa,.mus,.imf,.rad" onchange="loadFile(this.files)">
+        <button onclick="TestWorklet()">TestWorklet</button>
+    </div>
+    <div>
+        <button onclick="PlayerStop()">Stop</button>
+        <button onclick="player.pause()">Pause</button>
+        <button onclick="player.resume()">Resume</button>
+    </div>
+
+    <script type="text/javascript">
+        function TestWorklet() {
+            var src = document.querySelector("#opl3").src;
+            fetch(src).then(script => script.text()).then(async (text) => { 
+
+                var audioContext = new AudioContext();
+                await audioContext.audioWorklet.addModule("test-processor.js");
+
+                var worklet = new AudioWorkletNode(audioContext, "test-generator");
+                // Pass the whole OPL3 module into the worklet
+                worklet.port.postMessage({ cmd: 'OPL3', value: text });
+                //worklet.port.postMessage({ cmd: 'data', value: new Blob([0, 2, 3 , 4 , 5 , 5, 6]) });
             });
+        }
+    </script>
+	<script type="text/javascript">
+        var counter = document.querySelector('.counter');
+        var player = new OPL3.Player(null, { prebuffer: 3000, volume: 4 });;
+        player.on('progress', function() {
+            counter.innerHTML = player.position + 'ms / ' + player.length + 'ms';
         });
+        player.on('position', function(ms) {
+            counter.innerHTML = ms + 'ms / ' + player.length + 'ms';
+        });
+
+        function FileToArrayBuffer(file /*: File*/) {
+            const fileReader = new FileReader();
+
+            return new Promise((resolve, reject) => {
+                fileReader.onerror = () => {
+                    fileReader.abort();
+                    reject(new Error('Problem parsing input file'))
+                };
+
+                fileReader.onload = () => {
+                    resolve(fileReader.result);
+                };
+
+                fileReader.readAsArrayBuffer(file);
+            });
+        }
+
+        async function loadFile(files /*: FileList*/) {
+            if (files instanceof FileList && files.length) {
+                var file = files[0];
+                var data /*ArrayBuffer*/ = await FileToArrayBuffer(file);
+
+                player.play(data);
+            }
+        }
+
+        function PlayerStop() {
+            player.stop();
+        }
+
 	</script>
 </body>
 </html>
