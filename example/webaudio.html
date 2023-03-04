@@ -9,15 +9,21 @@
     <div>
         <label for="fileUpload">Select a file:</label>
         <input type="file" id="fileUpload" name="fileUpload" accept=".raw,.dro,.laa,.mus,.imf,.rad" onchange="loadFile(this.files)">
-        <button onclick="TestWorklet()">TestWorklet</button>
     </div>
     <div>
         <button onclick="PlayerStop()">Stop</button>
         <button onclick="player.pause()">Pause</button>
         <button onclick="player.resume()">Resume</button>
     </div>
+    <div style="margin-top: 20px">
+        <button onclick="TestWorklet()">Test Worklet</button>
+        <button onclick="StopWorklet()">Stop Worklet</button>
+        <input type="file" accept=".raw,.dro,.laa,.mus,.imf,.rad" onchange="loadFileWorklet(this.files)">
+    </div>
 
     <script type="text/javascript">
+        var worklet = null;
+
         function TestWorklet() {
             var src = document.querySelector("#opl3").src;
             fetch(src).then(script => script.text()).then(async (text) => { 
@@ -25,14 +31,26 @@
                 var audioContext = new AudioContext();
                 await audioContext.audioWorklet.addModule("test-processor.js");
 
-                var worklet = new AudioWorkletNode(audioContext, "test-generator");
+                worklet = new AudioWorkletNode(audioContext, "test-generator");
                 // Pass the whole OPL3 module into the worklet
                 worklet.port.postMessage({ cmd: 'OPL3', value: text });
-                //worklet.port.postMessage({ cmd: 'data', value: new Blob([0, 2, 3 , 4 , 5 , 5, 6]) });
+                worklet.connect(audioContext.destination);
             });
         }
-    </script>
-	<script type="text/javascript">
+    
+        function StopWorklet() {
+            worklet && worklet.disconnect();
+        }
+
+        async function loadFileWorklet(files /*: FileList*/) {
+            if (files instanceof FileList && files.length) {
+                var file = files[0];
+                var data /*ArrayBuffer*/ = await FileToArrayBuffer(file);
+
+                worklet && worklet.port.postMessage({ cmd: 'load', value: data });
+            }
+        }
+
         var counter = document.querySelector('.counter');
         var player = new OPL3.Player(null, { prebuffer: 3000, volume: 4 });;
         player.on('progress', function() {
@@ -65,6 +83,7 @@
                 var data /*ArrayBuffer*/ = await FileToArrayBuffer(file);
 
                 player.play(data);
+                //worklet && worklet.port.postMessage({ cmd: 'data', value: data });
             }
         }
 

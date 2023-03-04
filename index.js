@@ -2,7 +2,7 @@ module.exports = {
     OPL3: require('./lib/opl3'),
     format: {
         LAA: require('./format/laa'),
-        MUS: require('./format/mus'),
+        //MUS: require('./format/mus'),
         DRO: require('./format/dro'),
         IMF: require('./format/imf'),
         RAW: require('./format/raw'),

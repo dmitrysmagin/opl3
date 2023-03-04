@@ -1,5 +1,3 @@
-const { nullFormat } = require("numeral");
-
 class RAD {
     #rad = {
         speed: 6,
