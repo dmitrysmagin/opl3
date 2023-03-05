@@ -31,7 +31,10 @@
                 var audioContext = new AudioContext();
                 await audioContext.audioWorklet.addModule("test-processor.js");
 
-                worklet = new AudioWorkletNode(audioContext, "test-generator");
+                worklet = new AudioWorkletNode(audioContext, "test-generator", {
+                    numberOfOutputs: 1,
+                    outputChannelCount : [2]
+                });
                 // Pass the whole OPL3 module into the worklet
                 worklet.port.postMessage({ cmd: 'OPL3', value: text });
                 worklet.connect(audioContext.destination);

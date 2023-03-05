@@ -29,19 +29,20 @@ class TestProcessor extends AudioWorkletProcessor {
             }
         }
     }
-
+f = true;
     process(inputs, outputs, parameters) {
+        this.f && console.log(outputs); this.f = false;
         const output = outputs[0];
         // Float32Array(128)
         if (this.player.worklet_player) {
-
-        } else {
+            this.player.worklet_update(outputs[0]);
+        } /*else {
             output.forEach((channel) => {
                 for (let i = 0; i < channel.length; i++) {
                     channel[i] = Math.random() * 2 - 1;
                 }
             });
-        }
+        }*/
 
         return true;
     }
