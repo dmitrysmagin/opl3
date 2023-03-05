@@ -15,6 +15,7 @@ class TestProcessor extends AudioWorkletProcessor {
                     console.log(globalThis)
 
                     this.player = new OPL3.Player(null, {
+                        sampleRate: 48000,
                         prebuffer: 3000,
                         volume: 3
                     });

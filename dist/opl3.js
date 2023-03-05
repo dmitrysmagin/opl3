@@ -251,11 +251,14 @@
 	    this.outputBuffer = new Float64Array(4);
 	    this.outputChannelNumber = 2;
 	  }
+
+	  // output: Int16Array | Float32Array
 	  _createClass(OPL3, [{
 	    key: "read",
-	    value: function read(output, seek) {
+	    value: function read(output, seek, len) {
 	      var offset = seek || 0;
 	      output = output || this.output;
+	      var output_length = len || output.length;
 	      var converterScale = output instanceof Float32Array ? 32768 : 1;
 	      do {
 	        var channelOutput, outputChannelNumber;
@@ -290,7 +293,7 @@
 	        this.tremoloIndex++;
 	        if (this.tremoloIndex >= OPL3Data.tremoloTable[this.dam].length) this.tremoloIndex = 0;
 	        offset += this.outputChannelNumber;
-	      } while (offset < output.length);
+	      } while (offset < output_length);
 	      return output;
 	    }
 	  }, {
@@ -7610,7 +7613,7 @@
 	    });
 	    _classPrivateFieldSet(_assertThisInitialized(_this), _options, options || {});
 	    _classPrivateFieldGet(_assertThisInitialized(_this), _options).prebuffer = _classPrivateFieldGet(_assertThisInitialized(_this), _options).prebuffer || 200;
-	    _classPrivateFieldGet(_assertThisInitialized(_this), _options).bufferSize = _classPrivateFieldGet(_assertThisInitialized(_this), _options).bufferSize || 64;
+	    _classPrivateFieldGet(_assertThisInitialized(_this), _options).bufferSize = _classPrivateFieldGet(_assertThisInitialized(_this), _options).bufferSize || 128;
 	    _classPrivateFieldSet(_assertThisInitialized(_this), _format, format);
 
 	    // Forward events from Worker to main thread if needed
@@ -7780,7 +7783,7 @@
 	        _classPrivateFieldSet(this, _backupQueue, null);
 	        _classPrivateFieldSet(this, _isPlayInit, false);
 	        if (!_classPrivateFieldGet(this, _isPlayInit)) {
-	          _classPrivateFieldGet(this, _options).bufferSize = _classPrivateFieldGet(this, _options).bufferSize || 64;
+	          _classPrivateFieldGet(this, _options).bufferSize = _classPrivateFieldGet(this, _options).bufferSize || 128;
 	          _classPrivateFieldGet(this, _options).sampleRate = _classPrivateFieldGet(this, _context).sampleRate;
 	          _classPrivateFieldGet(this, _options).bitDepth = 32; // other values don't work at all
 
@@ -7816,8 +7819,7 @@
 	      this.worklet_player = new (_classPrivateFieldGet(this, _format))(new OPL3(), _classPrivateFieldGet(this, _options));
 	      this.worklet_player.load(buffer);
 	      _classPrivateFieldSet(this, _aborted, false);
-	      _classPrivateFieldSet(this, _samplesBuffer, new Float32Array(_classPrivateFieldGet(this, _options).bufferSize * 4));
-	      console.log(_classPrivateFieldGet(this, _samplesBuffer).length);
+	      _classPrivateFieldSet(this, _samplesBuffer, new Float32Array(_classPrivateFieldGet(this, _options).bufferSize * 2));
 	      _classPrivateFieldSet(this, _sampleRate, 49700 * ((_classPrivateFieldGet(this, _options).sampleRate || 49700) / 49700));
 	      _classPrivateFieldSet(this, _chunkSize, 0);
 	      console.log("worklet_load called", this.worklet_player);
@@ -7826,15 +7828,23 @@
 	    key: "worklet_update",
 	    value: function worklet_update(outputs) {
 	      if (!this.worklet_player || !outputs) return;
+	      var seek = 0;
+	        _classPrivateFieldGet(this, _samplesBuffer).length;
+	      _classPrivateFieldGet(this, _samplesBuffer).fill(0.0);
 	      if (_classPrivateFieldGet(this, _chunkSize) === 0) {
 	        this.worklet_player.update();
-	        _classPrivateFieldSet(this, _chunkSize, 2 * (sampleRate * this.worklet_player.refresh() | 0));
+	        _classPrivateFieldSet(this, _chunkSize, 2 * (_classPrivateFieldGet(this, _sampleRate) * this.worklet_player.refresh() | 0));
+	      }
+	      if (_classPrivateFieldGet(this, _chunkSize) < _classPrivateFieldGet(this, _options).bufferSize * 2) {
+	        this.worklet_player.opl.read(_classPrivateFieldGet(this, _samplesBuffer), seek, _classPrivateFieldGet(this, _chunkSize));
+	        seek += _classPrivateFieldGet(this, _chunkSize);
+	        this.worklet_player.update();
+	        _classPrivateFieldSet(this, _chunkSize, 2 * (_classPrivateFieldGet(this, _sampleRate) * this.worklet_player.refresh() | 0));
 	      }
 	      if (_classPrivateFieldGet(this, _chunkSize) > 0) {
-	        var samplesSize = Math.min(_classPrivateFieldGet(this, _options).bufferSize * 4, _classPrivateFieldGet(this, _chunkSize));
-	        //console.log("chunkSize: " + this.#chunkSize + " samplesSize: " + samplesSize);
+	        var samplesSize = Math.min(_classPrivateFieldGet(this, _options).bufferSize * 2 - seek, _classPrivateFieldGet(this, _chunkSize));
 	        _classPrivateFieldSet(this, _chunkSize, _classPrivateFieldGet(this, _chunkSize) - samplesSize);
-	        this.worklet_player.opl.read(_classPrivateFieldGet(this, _samplesBuffer));
+	        this.worklet_player.opl.read(_classPrivateFieldGet(this, _samplesBuffer), seek);
 
 	        // convert interleaved channels into separate ones
 	        for (var i = 0; i < _classPrivateFieldGet(this, _samplesBuffer).length; i += 2) {
