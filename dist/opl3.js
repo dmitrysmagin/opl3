@@ -7829,7 +7829,6 @@
 	    value: function worklet_update(outputs) {
 	      if (!this.worklet_player || !outputs) return;
 	      var seek = 0;
-	        _classPrivateFieldGet(this, _samplesBuffer).length;
 	      _classPrivateFieldGet(this, _samplesBuffer).fill(0.0);
 	      if (_classPrivateFieldGet(this, _chunkSize) === 0) {
 	        this.worklet_player.update();

@@ -35,9 +35,12 @@
                     numberOfOutputs: 1,
                     outputChannelCount : [2]
                 });
+                var gainNode = audioContext.createGain();
+                gainNode.gain.value = 4;
+                gainNode.connect(audioContext.destination);
                 // Pass the whole OPL3 module into the worklet
                 worklet.port.postMessage({ cmd: 'OPL3', value: text });
-                worklet.connect(audioContext.destination);
+                worklet.connect(gainNode);
             });
         }
     
