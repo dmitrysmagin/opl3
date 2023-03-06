@@ -11,5 +11,6 @@ module.exports = {
     // WAV: require('wav-arraybuffer'),
     // ConvertTo32Bit: require('pcm-bitdepth-converter').From16To32Bit,
     // Normalizer: require('pcm-normalizer'),
-    Player: require('./lib/player')
+    Player: require('./lib/player'),
+    WorkletPlayer: require('./lib/worklet-player')
 };

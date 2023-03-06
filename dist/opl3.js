@@ -224,7 +224,7 @@
 	  privateMap.set(obj, value);
 	}
 
-	var OPL3$1 = /*#__PURE__*/function () {
+	var OPL3$2 = /*#__PURE__*/function () {
 	  function OPL3() {
 	    _classCallCheck(this, OPL3);
 	    this.nts = 0;
@@ -592,7 +592,7 @@
 	  }]);
 	  return OPL3;
 	}();
-	var opl3$1 = OPL3$1;
+	var opl3$1 = OPL3$2;
 	var Channel = /*#__PURE__*/function () {
 	  function Channel(baseAddress, opl) {
 	    _classCallCheck(this, Channel);
@@ -1733,7 +1733,7 @@
 	};
 
 	var extend$1 = extend$2;
-	function LAA$1(opl, options) {
+	function LAA$2(opl, options) {
 	  options = options || {};
 	  this.opl = opl;
 	  this.channels = [];
@@ -1764,8 +1764,8 @@
 	    this.chp[i] = new Int32Array(3);
 	  }
 	}
-	var laa = LAA$1;
-	extend$1(LAA$1.prototype, {
+	var laa = LAA$2;
+	extend$1(LAA$2.prototype, {
 	  ADL: [0x41, 0x44, 0x4c],
 	  LUCAS_STYLE: 1,
 	  CMF_STYLE: 2,
@@ -4015,7 +4015,7 @@
 	  return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isFastBuffer(obj.slice(0, 0));
 	}
 
-	var DRO$1 = /*#__PURE__*/function () {
+	var DRO$2 = /*#__PURE__*/function () {
 	  function DRO(opl) {
 	    _classCallCheck(this, DRO);
 	    this.opl = opl;
@@ -4093,14 +4093,14 @@
 	  }]);
 	  return DRO;
 	}();
-	var dro = DRO$1;
+	var dro = DRO$2;
 
 	var extend = extend$2;
-	function IMF$1(opl) {
+	function IMF$2(opl) {
 	  this.opl = opl;
 	}
-	var imf = IMF$1;
-	extend(IMF$1.prototype, {
+	var imf = IMF$2;
+	extend(IMF$2.prototype, {
 	  load: function load(buffer) {
 	    this.data = new DataView(buffer.buffer);
 	    this.size = this.data.getUint16(0, true);
@@ -4145,7 +4145,7 @@
 	  }
 	});
 
-	var RAW$1 = /*#__PURE__*/function () {
+	var RAW$2 = /*#__PURE__*/function () {
 	  function RAW(opl) {
 	    _classCallCheck(this, RAW);
 	    this.opl = opl;
@@ -4215,10 +4215,10 @@
 	  }]);
 	  return RAW;
 	}();
-	var raw = RAW$1;
+	var raw = RAW$2;
 
 	var _rad = /*#__PURE__*/new WeakMap();
-	var RAD$1 = /*#__PURE__*/function () {
+	var RAD$2 = /*#__PURE__*/function () {
 	  function RAD(opl) {
 	    _classCallCheck(this, RAD);
 	    _classPrivateFieldInitSpec(this, _rad, {
@@ -4335,7 +4335,7 @@
 	  }]);
 	  return RAD;
 	}();
-	var rad = RAD$1;
+	var rad = RAD$2;
 
 	var browser$1 = true;
 
@@ -7507,19 +7507,19 @@
 
 	var Readable = require$$0$1.Readable;
 	var WritableStreamBuffer = streambuffer.exports.WritableStreamBuffer;
-	var OPL3 = opl3$1;
-	var DRO = dro;
-	var IMF = imf;
-	var LAA = laa;
+	var OPL3$1 = opl3$1;
+	var DRO$1 = dro;
+	var IMF$1 = imf;
+	var LAA$1 = laa;
 	//var MUS = require('../format/mus');
-	var RAW = raw;
-	var RAD = rad;
+	var RAW$1 = raw;
+	var RAD$1 = rad;
 	var currentScriptSrc = null;
 	try {
 	  currentScriptSrc = document.currentScript.src;
 	} catch (err) {}
-	var _options = /*#__PURE__*/new WeakMap();
-	var _format = /*#__PURE__*/new WeakMap();
+	var _options$1 = /*#__PURE__*/new WeakMap();
+	var _format$1 = /*#__PURE__*/new WeakMap();
 	var _context = /*#__PURE__*/new WeakMap();
 	var _gain = /*#__PURE__*/new WeakMap();
 	var _isPlayInit = /*#__PURE__*/new WeakMap();
@@ -7529,12 +7529,9 @@
 	var _backupQueue = /*#__PURE__*/new WeakMap();
 	var _worker = /*#__PURE__*/new WeakMap();
 	var _aborted = /*#__PURE__*/new WeakMap();
-	var _sendPostMessage = /*#__PURE__*/new WeakMap();
+	var _sendPostMessage$1 = /*#__PURE__*/new WeakMap();
 	var _bufferWriter = /*#__PURE__*/new WeakMap();
 	var _callback = /*#__PURE__*/new WeakMap();
-	var _samplesBuffer = /*#__PURE__*/new WeakMap();
-	var _sampleRate = /*#__PURE__*/new WeakMap();
-	var _chunkSize = /*#__PURE__*/new WeakMap();
 	var Player = /*#__PURE__*/function (_Readable) {
 	  _inherits(Player, _Readable);
 	  var _super = _createSuper(Player);
@@ -7542,11 +7539,11 @@
 	    var _this;
 	    _classCallCheck(this, Player);
 	    _this = _super.call(this);
-	    _classPrivateFieldInitSpec(_assertThisInitialized(_this), _options, {
+	    _classPrivateFieldInitSpec(_assertThisInitialized(_this), _options$1, {
 	      writable: true,
 	      value: {}
 	    });
-	    _classPrivateFieldInitSpec(_assertThisInitialized(_this), _format, {
+	    _classPrivateFieldInitSpec(_assertThisInitialized(_this), _format$1, {
 	      writable: true,
 	      value: null
 	    });
@@ -7586,7 +7583,7 @@
 	      writable: true,
 	      value: false
 	    });
-	    _classPrivateFieldInitSpec(_assertThisInitialized(_this), _sendPostMessage, {
+	    _classPrivateFieldInitSpec(_assertThisInitialized(_this), _sendPostMessage$1, {
 	      writable: true,
 	      value: false
 	    });
@@ -7599,36 +7596,24 @@
 	      value: null
 	    });
 	    _defineProperty(_assertThisInitialized(_this), "worklet_player", null);
-	    _classPrivateFieldInitSpec(_assertThisInitialized(_this), _samplesBuffer, {
-	      writable: true,
-	      value: null
-	    });
-	    _classPrivateFieldInitSpec(_assertThisInitialized(_this), _sampleRate, {
-	      writable: true,
-	      value: null
-	    });
-	    _classPrivateFieldInitSpec(_assertThisInitialized(_this), _chunkSize, {
-	      writable: true,
-	      value: 0
-	    });
-	    _classPrivateFieldSet(_assertThisInitialized(_this), _options, options || {});
-	    _classPrivateFieldGet(_assertThisInitialized(_this), _options).prebuffer = _classPrivateFieldGet(_assertThisInitialized(_this), _options).prebuffer || 200;
-	    _classPrivateFieldGet(_assertThisInitialized(_this), _options).bufferSize = _classPrivateFieldGet(_assertThisInitialized(_this), _options).bufferSize || 128;
-	    _classPrivateFieldSet(_assertThisInitialized(_this), _format, format);
+	    _classPrivateFieldSet(_assertThisInitialized(_this), _options$1, options || {});
+	    _classPrivateFieldGet(_assertThisInitialized(_this), _options$1).prebuffer = _classPrivateFieldGet(_assertThisInitialized(_this), _options$1).prebuffer || 200;
+	    _classPrivateFieldGet(_assertThisInitialized(_this), _options$1).bufferSize = _classPrivateFieldGet(_assertThisInitialized(_this), _options$1).bufferSize || 128;
+	    _classPrivateFieldSet(_assertThisInitialized(_this), _format$1, format);
 
 	    // Forward events from Worker to main thread if needed
 	    _this.on('end', function () {
 	      if (_classPrivateFieldGet(_assertThisInitialized(_this), _bufferWriter)) {
 	        var pcmBuffer = _classPrivateFieldGet(_assertThisInitialized(_this), _bufferWriter).getContents().buffer;
 	        if (typeof _classPrivateFieldGet(_assertThisInitialized(_this), _callback) == 'function') _classPrivateFieldGet(_assertThisInitialized(_this), _callback).call(_assertThisInitialized(_this), null, pcmBuffer);
-	        _classPrivateFieldGet(_assertThisInitialized(_this), _options).prebuffer = -1;
+	        _classPrivateFieldGet(_assertThisInitialized(_this), _options$1).prebuffer = -1;
 	      }
-	      if (_classPrivateFieldGet(_assertThisInitialized(_this), _sendPostMessage)) postMessage({
+	      if (_classPrivateFieldGet(_assertThisInitialized(_this), _sendPostMessage$1)) postMessage({
 	        cmd: 'end'
 	      });
 	    });
 	    _this.on('progress', function (value) {
-	      if (_classPrivateFieldGet(_assertThisInitialized(_this), _sendPostMessage)) postMessage({
+	      if (_classPrivateFieldGet(_assertThisInitialized(_this), _sendPostMessage$1)) postMessage({
 	        cmd: 'progress',
 	        value: value
 	      });
@@ -7637,7 +7622,7 @@
 	      throw err;
 	    });
 	    _this.on('midi', function (midi) {
-	      if (_classPrivateFieldGet(_assertThisInitialized(_this), _sendPostMessage)) postMessage({
+	      if (_classPrivateFieldGet(_assertThisInitialized(_this), _sendPostMessage$1)) postMessage({
 	        cmd: 'midi',
 	        value: midi
 	      }, [midi]);
@@ -7647,7 +7632,7 @@
 	      if (typeof AudioContext != 'undefined') {
 	        if (_classPrivateFieldGet(_assertThisInitialized(_this), _backupQueue)) _classPrivateFieldGet(_assertThisInitialized(_this), _backupQueue).push(chunk);else _classPrivateFieldGet(_assertThisInitialized(_this), _queue).push(chunk);
 	      }
-	      if (_classPrivateFieldGet(_assertThisInitialized(_this), _sendPostMessage)) postMessage({
+	      if (_classPrivateFieldGet(_assertThisInitialized(_this), _sendPostMessage$1)) postMessage({
 	        cmd: 'data',
 	        value: chunk.buffer
 	      }, [chunk.buffer]);
@@ -7688,14 +7673,14 @@
 	      };
 
 	      // TODO: move testing signatures into driver file
-	      if (header(0, 3) == 'ADL') return LAA;
-	      if (header(0, 8) == 'RAWADATA') return RAW;
-	      if (header(0, 8) == 'DBRAWOPL') return DRO;
+	      if (header(0, 3) == 'ADL') return LAA$1;
+	      if (header(0, 8) == 'RAWADATA') return RAW$1;
+	      if (header(0, 8) == 'DBRAWOPL') return DRO$1;
 	      //if (header(0, 4) == 'MUS\x1a') return MUS;
-	      if (header(0, 16) == 'RAD by REALiTY!!') return RAD;
+	      if (header(0, 16) == 'RAD by REALiTY!!') return RAD$1;
 	      // IMF has no ID :(
 
-	      return IMF;
+	      return IMF$1;
 	    }
 	  }, {
 	    key: "_read",
@@ -7754,20 +7739,20 @@
 	        var source = _classPrivateFieldGet(this, _context).createBufferSource();
 	        var processor = _classPrivateFieldGet(this, _context).createScriptProcessor(2048, 0, 2);
 	        _classPrivateFieldSet(this, _gain, _classPrivateFieldGet(this, _context).createGain());
-	        _classPrivateFieldGet(this, _gain).gain.value = _classPrivateFieldGet(this, _options).volume || 1;
+	        _classPrivateFieldGet(this, _gain).gain.value = _classPrivateFieldGet(this, _options$1).volume || 1;
 	        _classPrivateFieldSet(this, _queue, []);
 	        var bufferLeft, bufferRight, silence;
 	        var audioQueueFn = function audioQueueFn(e) {
 	          var outputBuffer = e.outputBuffer;
-	          if (_this2.length >= _classPrivateFieldGet(_this2, _options).prebuffer) {
-	            for (var i = 0; i < processor.bufferSize / _classPrivateFieldGet(_this2, _options).bufferSize; i++) {
+	          if (_this2.length >= _classPrivateFieldGet(_this2, _options$1).prebuffer) {
+	            for (var i = 0; i < processor.bufferSize / _classPrivateFieldGet(_this2, _options$1).bufferSize; i++) {
 	              var tmp = _classPrivateFieldGet(_this2, _queue)[_classPrivateFieldGet(_this2, _queuePos)];
 	              if (tmp) {
 	                var _this$queuePos;
 	                _classPrivateFieldSet(_this2, _queuePos, (_this$queuePos = _classPrivateFieldGet(_this2, _queuePos), _this$queuePos++, _this$queuePos));
 	                _this2.emit('position', _this2.position);
 	                var dv = new DataView(tmp.buffer || tmp);
-	                for (var j = 0, offset = 0; j < _classPrivateFieldGet(_this2, _options).bufferSize; j++, offset += 8) {
+	                for (var j = 0, offset = 0; j < _classPrivateFieldGet(_this2, _options$1).bufferSize; j++, offset += 8) {
 	                  bufferLeft[j] = dv.getFloat32(offset, true);
 	                  bufferRight[j] = dv.getFloat32(offset + 4, true);
 	                }
@@ -7775,23 +7760,23 @@
 	                bufferLeft.set(silence);
 	                bufferRight.set(silence);
 	              }
-	              outputBuffer.copyToChannel(bufferLeft, 0, i * _classPrivateFieldGet(_this2, _options).bufferSize);
-	              outputBuffer.copyToChannel(bufferRight, 1, i * _classPrivateFieldGet(_this2, _options).bufferSize);
+	              outputBuffer.copyToChannel(bufferLeft, 0, i * _classPrivateFieldGet(_this2, _options$1).bufferSize);
+	              outputBuffer.copyToChannel(bufferRight, 1, i * _classPrivateFieldGet(_this2, _options$1).bufferSize);
 	            }
 	          }
 	        };
 	        _classPrivateFieldSet(this, _backupQueue, null);
 	        _classPrivateFieldSet(this, _isPlayInit, false);
 	        if (!_classPrivateFieldGet(this, _isPlayInit)) {
-	          _classPrivateFieldGet(this, _options).bufferSize = _classPrivateFieldGet(this, _options).bufferSize || 128;
-	          _classPrivateFieldGet(this, _options).sampleRate = _classPrivateFieldGet(this, _context).sampleRate;
-	          _classPrivateFieldGet(this, _options).bitDepth = 32; // other values don't work at all
+	          _classPrivateFieldGet(this, _options$1).bufferSize = _classPrivateFieldGet(this, _options$1).bufferSize || 128;
+	          _classPrivateFieldGet(this, _options$1).sampleRate = _classPrivateFieldGet(this, _context).sampleRate;
+	          _classPrivateFieldGet(this, _options$1).bitDepth = 32; // other values don't work at all
 
-	          bufferLeft = new Float32Array(_classPrivateFieldGet(this, _options).bufferSize);
-	          bufferRight = new Float32Array(_classPrivateFieldGet(this, _options).bufferSize);
-	          silence = new Float32Array(_classPrivateFieldGet(this, _options).bufferSize);
+	          bufferLeft = new Float32Array(_classPrivateFieldGet(this, _options$1).bufferSize);
+	          bufferRight = new Float32Array(_classPrivateFieldGet(this, _options$1).bufferSize);
+	          silence = new Float32Array(_classPrivateFieldGet(this, _options$1).bufferSize);
 	          _classPrivateFieldSet(this, _queuePos, 0);
-	          _classPrivateFieldSet(this, _bufferPerMs, _classPrivateFieldGet(this, _options).sampleRate / 1000 / _classPrivateFieldGet(this, _options).bufferSize);
+	          _classPrivateFieldSet(this, _bufferPerMs, _classPrivateFieldGet(this, _options$1).sampleRate / 1000 / _classPrivateFieldGet(this, _options$1).bufferSize);
 	          this.load(buffer);
 	          processor.onaudioprocess = audioQueueFn;
 	          source.connect(processor);
@@ -7807,58 +7792,12 @@
 	      }
 	    }
 	  }, {
-	    key: "worklet_load",
-	    value:
-	    // call before worklet_play
-	    function worklet_load(buffer) {
-	      var sendPostMessage = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-	      if (buffer instanceof ArrayBuffer) buffer = new Buffer.from(buffer);
-	      _classPrivateFieldSet(this, _sendPostMessage, sendPostMessage);
-	      _classPrivateFieldSet(this, _format, _classPrivateFieldGet(this, _format) || this.detectFormat(buffer));
-	      if (!_classPrivateFieldGet(this, _format)) throw 'File format not detected';
-	      this.worklet_player = new (_classPrivateFieldGet(this, _format))(new OPL3(), _classPrivateFieldGet(this, _options));
-	      this.worklet_player.load(buffer);
-	      _classPrivateFieldSet(this, _aborted, false);
-	      _classPrivateFieldSet(this, _samplesBuffer, new Float32Array(_classPrivateFieldGet(this, _options).bufferSize * 2));
-	      _classPrivateFieldSet(this, _sampleRate, 49700 * ((_classPrivateFieldGet(this, _options).sampleRate || 49700) / 49700));
-	      _classPrivateFieldSet(this, _chunkSize, 0);
-	      console.log("worklet_load called", this.worklet_player);
-	    }
-	  }, {
-	    key: "worklet_update",
-	    value: function worklet_update(outputs) {
-	      if (!this.worklet_player || !outputs) return;
-	      var seek = 0;
-	      _classPrivateFieldGet(this, _samplesBuffer).fill(0.0);
-	      if (_classPrivateFieldGet(this, _chunkSize) === 0) {
-	        this.worklet_player.update();
-	        _classPrivateFieldSet(this, _chunkSize, 2 * (_classPrivateFieldGet(this, _sampleRate) * this.worklet_player.refresh() | 0));
-	      }
-	      if (_classPrivateFieldGet(this, _chunkSize) < _classPrivateFieldGet(this, _options).bufferSize * 2) {
-	        this.worklet_player.opl.read(_classPrivateFieldGet(this, _samplesBuffer), seek, _classPrivateFieldGet(this, _chunkSize));
-	        seek += _classPrivateFieldGet(this, _chunkSize);
-	        this.worklet_player.update();
-	        _classPrivateFieldSet(this, _chunkSize, 2 * (_classPrivateFieldGet(this, _sampleRate) * this.worklet_player.refresh() | 0));
-	      }
-	      if (_classPrivateFieldGet(this, _chunkSize) > 0) {
-	        var samplesSize = Math.min(_classPrivateFieldGet(this, _options).bufferSize * 2 - seek, _classPrivateFieldGet(this, _chunkSize));
-	        _classPrivateFieldSet(this, _chunkSize, _classPrivateFieldGet(this, _chunkSize) - samplesSize);
-	        this.worklet_player.opl.read(_classPrivateFieldGet(this, _samplesBuffer), seek);
-
-	        // convert interleaved channels into separate ones
-	        for (var i = 0; i < _classPrivateFieldGet(this, _samplesBuffer).length; i += 2) {
-	          outputs[0][i >> 1] = _classPrivateFieldGet(this, _samplesBuffer)[i];
-	          outputs[1][i >> 1] = _classPrivateFieldGet(this, _samplesBuffer)[i + 1];
-	        }
-	      }
-	    }
-	  }, {
 	    key: "load",
 	    value: function load(buffer) {
 	      var callback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 	      var sendPostMessage = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 	      _classPrivateFieldSet(this, _callback, callback);
-	      if (!_classPrivateFieldGet(this, _options).disableWorker && browser$1 && typeof window != 'undefined' && 'Worker' in window) {
+	      if (!_classPrivateFieldGet(this, _options$1).disableWorker && browser$1 && typeof window != 'undefined' && 'Worker' in window) {
 	        this._load_worker(buffer, callback, sendPostMessage);
 	      } else {
 	        this._load_internal(buffer, callback, sendPostMessage);
@@ -7880,16 +7819,16 @@
 	        }));
 	        this.pipe(_classPrivateFieldGet(this, _bufferWriter));
 	        if (buffer instanceof ArrayBuffer) buffer = new Buffer.from(buffer);
-	        _classPrivateFieldSet(this, _sendPostMessage, sendPostMessage);
-	        _classPrivateFieldSet(this, _format, _classPrivateFieldGet(this, _format) || this.detectFormat(buffer));
-	        if (!_classPrivateFieldGet(this, _format)) throw 'File format not detected';
+	        _classPrivateFieldSet(this, _sendPostMessage$1, sendPostMessage);
+	        _classPrivateFieldSet(this, _format$1, _classPrivateFieldGet(this, _format$1) || this.detectFormat(buffer));
+	        if (!_classPrivateFieldGet(this, _format$1)) throw 'File format not detected';
 
 	        // Make player global?
-	        var player = new (_classPrivateFieldGet(this, _format))(new OPL3(), _classPrivateFieldGet(this, _options));
+	        var player = new (_classPrivateFieldGet(this, _format$1))(new OPL3$1(), _classPrivateFieldGet(this, _options$1));
 	        player.load(buffer);
 	        _classPrivateFieldSet(this, _aborted, false);
-	        var samplesBuffer = new Float32Array(_classPrivateFieldGet(this, _options).bufferSize * 2);
-	        var sampleRate = 49700 * ((_classPrivateFieldGet(this, _options).sampleRate || 49700) / 49700);
+	        var samplesBuffer = new Float32Array(_classPrivateFieldGet(this, _options$1).bufferSize * 2);
+	        var sampleRate = 49700 * ((_classPrivateFieldGet(this, _options$1).sampleRate || 49700) / 49700);
 	        var fn = function fn() {
 	          if (_classPrivateFieldGet(_this3, _aborted)) return;
 	          while (player.update()) {
@@ -7897,7 +7836,7 @@
 	            _this3.emit('progress', Math.floor(player.position / player.data.byteLength * 1000) / 10);
 	            var chunkSize = 2 * (sampleRate * player.refresh() | 0);
 	            while (chunkSize > 0) {
-	              var samplesSize = Math.min(_classPrivateFieldGet(_this3, _options).bufferSize * 2, chunkSize);
+	              var samplesSize = Math.min(_classPrivateFieldGet(_this3, _options$1).bufferSize * 2, chunkSize);
 	              chunkSize -= samplesSize;
 	              player.opl.read(samplesBuffer);
 
@@ -7922,9 +7861,9 @@
 	      var _this4 = this;
 	      var callback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 	      var sendPostMessage = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-	      _classPrivateFieldSet(this, _sendPostMessage, sendPostMessage);
-	      _classPrivateFieldSet(this, _format, _classPrivateFieldGet(this, _format) || this.detectFormat(buffer));
-	      if (!_classPrivateFieldGet(this, _format)) throw 'File format not detected';
+	      _classPrivateFieldSet(this, _sendPostMessage$1, sendPostMessage);
+	      _classPrivateFieldSet(this, _format$1, _classPrivateFieldGet(this, _format$1) || this.detectFormat(buffer));
+	      if (!_classPrivateFieldGet(this, _format$1)) throw 'File format not detected';
 	      var workerSrc = 'importScripts("' + currentScriptSrc + '");\n' + 'onmessage = (msg) => {\n' + '   var player = new OPL3.Player(null, msg.data.options);\n' + '   player.load(msg.data.buffer, ' + (typeof callback == 'function' ? '(err, buffer) => {\n' + '       if (err) throw err;\n' + '       postMessage({ cmd: "callback", value: buffer }, [buffer]);\n' + '   }' : 'null') + ', true);\n' + '};';
 	      var blob = new Blob([workerSrc], {
 	        type: 'application/javascript'
@@ -7948,7 +7887,7 @@
 	      };
 
 	      // Start worker ;)
-	      var options = _objectSpread2(_objectSpread2({}, _classPrivateFieldGet(this, _options)), {}, {
+	      var options = _objectSpread2(_objectSpread2({}, _classPrivateFieldGet(this, _options$1)), {}, {
 	        prebuffer: Infinity
 	      });
 	      _classPrivateFieldGet(this, _worker).postMessage({
@@ -7960,6 +7899,127 @@
 	  return Player;
 	}(Readable);
 	var player = Player;
+
+	// To be executed inside AudioWorklet in AudioWorkletGlobalScope
+
+	var OPL3 = opl3$1;
+	var DRO = dro;
+	var IMF = imf;
+	var LAA = laa;
+	var RAW = raw;
+	var RAD = rad;
+	var _options = /*#__PURE__*/new WeakMap();
+	var _format = /*#__PURE__*/new WeakMap();
+	var _samplesBuffer = /*#__PURE__*/new WeakMap();
+	var _sampleRate = /*#__PURE__*/new WeakMap();
+	var _chunkSize = /*#__PURE__*/new WeakMap();
+	var _sendPostMessage = /*#__PURE__*/new WeakMap();
+	var WorkletPlayer = /*#__PURE__*/function () {
+	  // 48000 for audio worklet
+
+	  function WorkletPlayer(format, options) {
+	    _classCallCheck(this, WorkletPlayer);
+	    _classPrivateFieldInitSpec(this, _options, {
+	      writable: true,
+	      value: {}
+	    });
+	    _classPrivateFieldInitSpec(this, _format, {
+	      writable: true,
+	      value: null
+	    });
+	    _defineProperty(this, "format_player", null);
+	    _classPrivateFieldInitSpec(this, _samplesBuffer, {
+	      writable: true,
+	      value: null
+	    });
+	    _classPrivateFieldInitSpec(this, _sampleRate, {
+	      writable: true,
+	      value: null
+	    });
+	    _classPrivateFieldInitSpec(this, _chunkSize, {
+	      writable: true,
+	      value: 0
+	    });
+	    _classPrivateFieldInitSpec(this, _sendPostMessage, {
+	      writable: true,
+	      value: null
+	    });
+	    _classPrivateFieldSet(this, _options, options || {});
+	    _classPrivateFieldGet(this, _options).bufferSize = 128; // length of output in processor    
+	  }
+	  _createClass(WorkletPlayer, [{
+	    key: "detectFormat",
+	    value: function detectFormat(buffer /*: ArrayBuffer | Buffer*/) {
+	      var header = function header(offset, length) {
+	        return String.fromCharCode.apply(null, new Uint8Array(buffer.slice(offset, length)));
+	      };
+
+	      // TODO: move testing signatures into driver file
+	      if (header(0, 3) == 'ADL') return LAA;
+	      if (header(0, 8) == 'RAWADATA') return RAW;
+	      if (header(0, 8) == 'DBRAWOPL') return DRO;
+	      //if (header(0, 4) == 'MUS\x1a') return MUS;
+	      if (header(0, 16) == 'RAD by REALiTY!!') return RAD;
+	      // IMF has no ID :(
+
+	      return IMF;
+	    }
+	  }, {
+	    key: "play",
+	    value: function play() {}
+	  }, {
+	    key: "pause",
+	    value: function pause() {}
+	  }, {
+	    key: "load",
+	    value: function load(buffer) {
+	      var sendPostMessage = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+	      if (buffer instanceof ArrayBuffer) buffer = new Buffer.from(buffer);
+	      _classPrivateFieldSet(this, _sendPostMessage, sendPostMessage);
+	      _classPrivateFieldSet(this, _format, _classPrivateFieldGet(this, _format) || this.detectFormat(buffer));
+	      if (!_classPrivateFieldGet(this, _format)) throw 'File format not detected';
+	      this.format_player = new (_classPrivateFieldGet(this, _format))(new OPL3(), _classPrivateFieldGet(this, _options));
+	      this.format_player.load(buffer);
+
+	      //this.#aborted = false;
+
+	      _classPrivateFieldSet(this, _samplesBuffer, new Float32Array(_classPrivateFieldGet(this, _options).bufferSize * 2));
+	      _classPrivateFieldSet(this, _sampleRate, 49700 * ((_classPrivateFieldGet(this, _options).sampleRate || 49700) / 49700));
+	      _classPrivateFieldSet(this, _chunkSize, 0);
+	      console.log("worklet_load called", this.format_player);
+	    }
+	  }, {
+	    key: "update",
+	    value: function update(outputs) {
+	      if (!this.format_player || !outputs) return;
+	      var seek = 0;
+	      _classPrivateFieldGet(this, _samplesBuffer).fill(0.0);
+	      if (_classPrivateFieldGet(this, _chunkSize) === 0) {
+	        this.format_player.update();
+	        _classPrivateFieldSet(this, _chunkSize, 2 * (_classPrivateFieldGet(this, _sampleRate) * this.format_player.refresh() | 0));
+	      }
+	      if (_classPrivateFieldGet(this, _chunkSize) < _classPrivateFieldGet(this, _options).bufferSize * 2) {
+	        this.format_player.opl.read(_classPrivateFieldGet(this, _samplesBuffer), seek, _classPrivateFieldGet(this, _chunkSize));
+	        seek += _classPrivateFieldGet(this, _chunkSize);
+	        this.format_player.update();
+	        _classPrivateFieldSet(this, _chunkSize, 2 * (_classPrivateFieldGet(this, _sampleRate) * this.format_player.refresh() | 0));
+	      }
+	      if (_classPrivateFieldGet(this, _chunkSize) > 0) {
+	        var samplesSize = Math.min(_classPrivateFieldGet(this, _options).bufferSize * 2 - seek, _classPrivateFieldGet(this, _chunkSize));
+	        _classPrivateFieldSet(this, _chunkSize, _classPrivateFieldGet(this, _chunkSize) - samplesSize);
+	        this.format_player.opl.read(_classPrivateFieldGet(this, _samplesBuffer), seek);
+
+	        // convert interleaved channels into separate ones
+	        for (var i = 0; i < _classPrivateFieldGet(this, _samplesBuffer).length; i += 2) {
+	          outputs[0][i >> 1] = _classPrivateFieldGet(this, _samplesBuffer)[i];
+	          outputs[1][i >> 1] = _classPrivateFieldGet(this, _samplesBuffer)[i + 1];
+	        }
+	      }
+	    }
+	  }]);
+	  return WorkletPlayer;
+	}();
+	var workletPlayer = WorkletPlayer;
 
 	var opl3 = {
 	  OPL3: opl3$1,
@@ -7974,7 +8034,8 @@
 	  // WAV: require('wav-arraybuffer'),
 	  // ConvertTo32Bit: require('pcm-bitdepth-converter').From16To32Bit,
 	  // Normalizer: require('pcm-normalizer'),
-	  Player: player
+	  Player: player,
+	  WorkletPlayer: workletPlayer
 	};
 
 	return opl3;

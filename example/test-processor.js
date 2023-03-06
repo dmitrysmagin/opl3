@@ -1,8 +1,6 @@
 "use strict";
 
 class TestProcessor extends AudioWorkletProcessor {
-    f = true;
-
     constructor() {
         super();
         this.port.onmessage = (e) => {
@@ -14,7 +12,7 @@ class TestProcessor extends AudioWorkletProcessor {
                     opl3module(globalThis);
                     console.log(globalThis)
 
-                    this.player = new OPL3.Player(null, {
+                    this.player = new OPL3.WorkletPlayer(null, {
                         sampleRate: 48000,
                         prebuffer: 3000,
                         volume: 3
@@ -24,26 +22,16 @@ class TestProcessor extends AudioWorkletProcessor {
                     break;
                 }
                 case "load": {
-                    this.player.worklet_load(e.data.value, null, this.port.postMessage);
+                    this.player.load(e.data.value, null, this.port.postMessage);
                     break;
                 }
             }
         }
     }
-f = true;
+
     process(inputs, outputs, parameters) {
-        this.f && console.log(outputs); this.f = false;
-        const output = outputs[0];
         // Float32Array(128)
-        if (this.player.worklet_player) {
-            this.player.worklet_update(outputs[0]);
-        } /*else {
-            output.forEach((channel) => {
-                for (let i = 0; i < channel.length; i++) {
-                    channel[i] = Math.random() * 2 - 1;
-                }
-            });
-        }*/
+        this.player.update(outputs[0]);
 
         return true;
     }
