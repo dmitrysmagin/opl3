@@ -19,7 +19,12 @@
     </div>
 
     <script type="text/javascript">
+        var counter = document.querySelector(".counter");
         var player = new OPL3.Player({ prebuffer: 3000, sampleRate: 48000 });
+        console.log(player);
+        player.on("currentTime", (value) => {
+            counter.innerHTML = `currentFrame: ${value.currentFrame}, currentTime: ${value.currentTime.toFixed(2)} s`;
+        })
 
         function FileToArrayBuffer(file /*: File*/) {
             const fileReader = new FileReader();

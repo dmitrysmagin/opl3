@@ -7392,7 +7392,7 @@
 	  return dest;
 	};
 
-	var processor = "class WorkletProcessor extends AudioWorkletProcessor {\r\n    constructor() {\r\n        super();\r\n        this.port.onmessage = (e) => {\r\n            switch (e.data.cmd) {\r\n                case \"OPL3\": {\r\n                    // self is needed for browserify'd module\r\n                    // rollup's umd doesn't need it\r\n                    const opl3module = new Function(\"self\", e.data.value);\r\n                    opl3module(globalThis);\r\n                    console.log(globalThis)\r\n\r\n                    this.player = new OPL3.WorkletPlayer(this.port.postMessage, e.data.options || {});\r\n                    console.log(this.player)\r\n\r\n                    break;\r\n                }\r\n                case \"load\": {\r\n                    this.player.load(e.data.value);\r\n                    break;\r\n                }\r\n                case \"play\": {\r\n                    break;\r\n                }\r\n                case \"stop\": {\r\n                    break;\r\n                }\r\n            }\r\n        }\r\n    }\r\n\r\n    process(inputs, outputs, parameters) {\r\n        // Float32Array(128)\r\n        this.player.update(outputs[0]);\r\n\r\n        return true;\r\n    }\r\n}\r\n\r\nregisterProcessor(\"opl3-generator\", WorkletProcessor);\r\n";
+	var processor = "class WorkletProcessor extends AudioWorkletProcessor {\r\n    constructor() {\r\n        super();\r\n        this.port.onmessage = (e) => {\r\n            switch (e.data.cmd) {\r\n                case \"OPL3\": {\r\n                    // self is needed for browserify'd module\r\n                    // rollup's umd doesn't need it\r\n                    const opl3module = new Function(\"self\", e.data.value);\r\n                    opl3module(globalThis);\r\n                    console.log(globalThis)\r\n\r\n                    this.player = new OPL3.WorkletPlayer(this.port.postMessage, e.data.options || {});\r\n                    console.log(this.player)\r\n\r\n                    break;\r\n                }\r\n                case \"load\": {\r\n                    this.player.load(e.data.value);\r\n                    break;\r\n                }\r\n                case \"play\": {\r\n                    break;\r\n                }\r\n                case \"stop\": {\r\n                    break;\r\n                }\r\n            }\r\n        }\r\n    }\r\n\r\n    process(inputs, outputs, parameters) {\r\n        // Float32Array(128)\r\n        this.player.update(outputs[0]);\r\n        this.port.postMessage({ cmd: \"currentTime\", value: { currentFrame, currentTime } })\r\n\r\n        return true;\r\n    }\r\n}\r\n\r\nregisterProcessor(\"opl3-generator\", WorkletProcessor);\r\n";
 
 	var currentScriptSrc = null;
 	try {
@@ -7449,6 +7449,7 @@
 	    key: "initContext",
 	    value: function () {
 	      var _initContext = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
+	        var _this2 = this;
 	        var blob, objectURL, gainNode;
 	        return _regeneratorRuntime().wrap(function _callee2$(_context2) {
 	          while (1) {
@@ -7478,8 +7479,11 @@
 	                  value: this.opl3module,
 	                  options: _classPrivateFieldGet(this, _options$1)
 	                });
+	                this.worklet.port.onmessage = function (e) {
+	                  return _this2.emit(e.data.cmd, e.data.value);
+	                };
 	                this.worklet.connect(gainNode);
-	              case 11:
+	              case 12:
 	              case "end":
 	                return _context2.stop();
 	            }
