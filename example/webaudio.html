@@ -13,26 +13,13 @@
             onchange="loadFileWorklet(this.files)">
     </div>
     <div>
-        <button onclick="">Stop</button>
-        <button onclick="">Pause</button>
-        <button onclick="">Resume</button>
-    </div>
-    <div style="margin-top: 20px">
-        <button onclick="TestWorklet()">Test Worklet</button>
-        <button onclick="StopWorklet()">Stop Worklet</button>
-        <input type="file" accept=".raw,.dro,.laa,.mus,.imf,.rad" onchange="loadFileWorklet(this.files)">
+        <button onclick="PlayerStop()">Stop</button>
+        <button onclick="PlayerPause()">Pause</button>
+        <button onclick="PlayerResume()">Resume</button>
     </div>
 
     <script type="text/javascript">
         var mainPlayer = new OPL3.MainPlayer();
-
-        function TestWorklet() {
-            mainPlayer = new OPL3.MainPlayer();
-        }
-    
-        function StopWorklet() {
-            //worklet && worklet.disconnect();
-        }
 
         function FileToArrayBuffer(file /*: File*/) {
             const fileReader = new FileReader();
@@ -56,11 +43,20 @@
                 var file = files[0];
                 var data /*ArrayBuffer*/ = await FileToArrayBuffer(file);
 
-                mainPlayer && mainPlayer.load(data) && mainPlayer.play();
+                mainPlayer.load(data) && mainPlayer.play();
             }
+        }
+    
+        function PlayerPause() {
+            mainPlayer.pause();
+        }
+
+        function PlayerResume() {
+            mainPlayer.resume();
         }
 
         function PlayerStop() {
+            mainPlayer.stop();
         }
 
 	</script>
