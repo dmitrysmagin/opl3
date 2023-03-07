@@ -2,7 +2,7 @@
 <html>
 <head>
 	<title>OPL3</title>
-	<script id="opl3" type="text/javascript" src="../dist/opl3.js"></script>
+	<script type="text/javascript" src="../dist/opl3.js"></script>
 </head>
 <body>
     <div class="counter"></div>
@@ -19,7 +19,7 @@
     </div>
 
     <script type="text/javascript">
-        var mainPlayer = new OPL3.MainPlayer();
+        var player = new OPL3.Player({ prebuffer: 3000, sampleRate: 48000 });
 
         function FileToArrayBuffer(file /*: File*/) {
             const fileReader = new FileReader();
@@ -43,20 +43,20 @@
                 var file = files[0];
                 var data /*ArrayBuffer*/ = await FileToArrayBuffer(file);
 
-                mainPlayer.load(data) && mainPlayer.play();
+                player.play(data);
             }
         }
     
         function PlayerPause() {
-            mainPlayer.pause();
+            player.pause();
         }
 
         function PlayerResume() {
-            mainPlayer.resume();
+            player.resume();
         }
 
         function PlayerStop() {
-            mainPlayer.stop();
+            player.stop();
         }
 
 	</script>

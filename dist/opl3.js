@@ -1754,7 +1754,7 @@
 	  DAM1_DVB1_RYT1_BD1_SD1_TOM1_TC1_HH1_Offset: 0xbd,
 	  _7_NEW1_Offset: 0x105,
 	  _2_CONNECTIONSEL6_Offset: 0x104,
-	  sampleRate: 49700,
+	  sampleRate: 48000,
 	  // The first array is used when DVB=0 and the second array is used when DVB=1.
 	  vibratoTable: [new Float64Array(8192), new Float64Array(8192)],
 	  // First array used when AM = 0 and second array used when AM = 1.
@@ -7392,21 +7392,21 @@
 	  return dest;
 	};
 
-	var processor = "class WorkletProcessor extends AudioWorkletProcessor {\r\n    constructor() {\r\n        super();\r\n        this.port.onmessage = (e) => {\r\n            switch (e.data.cmd) {\r\n                case \"OPL3\": {\r\n                    // self is needed for browserify'd module\r\n                    // rollup's umd doesn't need it\r\n                    const opl3module = new Function(\"self\", e.data.value);\r\n                    opl3module(globalThis);\r\n                    console.log(globalThis)\r\n\r\n                    this.player = new OPL3.WorkletPlayer(this.port.postMessage, {\r\n                        sampleRate: 48000,\r\n                    });\r\n                    console.log(this.player)\r\n\r\n                    break;\r\n                }\r\n                case \"load\": {\r\n                    this.player.load(e.data.value);\r\n                    break;\r\n                }\r\n                case \"play\": {\r\n                    break;\r\n                }\r\n                case \"stop\": {\r\n                    break;\r\n                }\r\n            }\r\n        }\r\n    }\r\n\r\n    process(inputs, outputs, parameters) {\r\n        // Float32Array(128)\r\n        this.player.update(outputs[0]);\r\nconsole.log(\"o\")\r\n        return true;\r\n    }\r\n}\r\n\r\nregisterProcessor(\"opl3-generator\", WorkletProcessor);\r\n";
+	var processor = "class WorkletProcessor extends AudioWorkletProcessor {\r\n    constructor() {\r\n        super();\r\n        this.port.onmessage = (e) => {\r\n            switch (e.data.cmd) {\r\n                case \"OPL3\": {\r\n                    // self is needed for browserify'd module\r\n                    // rollup's umd doesn't need it\r\n                    const opl3module = new Function(\"self\", e.data.value);\r\n                    opl3module(globalThis);\r\n                    console.log(globalThis)\r\n\r\n                    this.player = new OPL3.WorkletPlayer(this.port.postMessage, e.data.options || {});\r\n                    console.log(this.player)\r\n\r\n                    break;\r\n                }\r\n                case \"load\": {\r\n                    this.player.load(e.data.value);\r\n                    break;\r\n                }\r\n                case \"play\": {\r\n                    break;\r\n                }\r\n                case \"stop\": {\r\n                    break;\r\n                }\r\n            }\r\n        }\r\n    }\r\n\r\n    process(inputs, outputs, parameters) {\r\n        // Float32Array(128)\r\n        this.player.update(outputs[0]);\r\n\r\n        return true;\r\n    }\r\n}\r\n\r\nregisterProcessor(\"opl3-generator\", WorkletProcessor);\r\n";
 
 	var currentScriptSrc = null;
 	try {
 	  currentScriptSrc = document.currentScript.src;
 	} catch (err) {}
 	var _options$1 = /*#__PURE__*/new WeakMap();
-	var MainPlayer = /*#__PURE__*/function (_Readable) {
-	  _inherits(MainPlayer, _Readable);
-	  var _super = _createSuper(MainPlayer);
+	var Player = /*#__PURE__*/function (_Readable) {
+	  _inherits(Player, _Readable);
+	  var _super = _createSuper(Player);
 	  // source of opl3.js
 
-	  function MainPlayer(format, options) {
+	  function Player(options) {
 	    var _this;
-	    _classCallCheck(this, MainPlayer);
+	    _classCallCheck(this, Player);
 	    _this = _super.call(this);
 	    _classPrivateFieldInitSpec(_assertThisInitialized(_this), _options$1, {
 	      writable: true,
@@ -7419,7 +7419,7 @@
 	    _this.init();
 	    return _this;
 	  }
-	  _createClass(MainPlayer, [{
+	  _createClass(Player, [{
 	    key: "init",
 	    value: function () {
 	      var _init = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
@@ -7458,7 +7458,9 @@
 	                  type: 'application/javascript'
 	                });
 	                objectURL = URL.createObjectURL(blob);
-	                this.audioContext = new AudioContext();
+	                this.audioContext = new AudioContext({
+	                  sampleRate: _classPrivateFieldGet(this, _options$1).sampleRate || 48000 // 8..9kHz
+	                });
 	                _context2.next = 5;
 	                return this.audioContext.audioWorklet.addModule(objectURL);
 	              case 5:
@@ -7473,7 +7475,8 @@
 	                // Pass the whole OPL3 module into the worklet
 	                this.worklet.port.postMessage({
 	                  cmd: 'OPL3',
-	                  value: this.opl3module
+	                  value: this.opl3module,
+	                  options: _classPrivateFieldGet(this, _options$1)
 	                });
 	                this.worklet.connect(gainNode);
 	              case 11:
@@ -7491,27 +7494,25 @@
 	  }, {
 	    key: "play",
 	    value: function play(buffer) {
-	      var _this$audioContext;
-	      (_this$audioContext = this.audioContext) === null || _this$audioContext === void 0 ? void 0 : _this$audioContext.resume();
-	      console.log(this.audioContext);
+	      this.load(buffer);
 	    }
 	  }, {
 	    key: "pause",
 	    value: function pause() {
-	      var _this$audioContext2;
-	      (_this$audioContext2 = this.audioContext) === null || _this$audioContext2 === void 0 ? void 0 : _this$audioContext2.suspend();
+	      var _this$audioContext;
+	      (_this$audioContext = this.audioContext) === null || _this$audioContext === void 0 ? void 0 : _this$audioContext.suspend();
 	    }
 	  }, {
 	    key: "resume",
 	    value: function resume() {
-	      var _this$audioContext3;
-	      (_this$audioContext3 = this.audioContext) === null || _this$audioContext3 === void 0 ? void 0 : _this$audioContext3.resume();
+	      var _this$audioContext2;
+	      (_this$audioContext2 = this.audioContext) === null || _this$audioContext2 === void 0 ? void 0 : _this$audioContext2.resume();
 	    }
 	  }, {
 	    key: "stop",
 	    value: function stop() {
-	      var _this$audioContext4;
-	      (_this$audioContext4 = this.audioContext) === null || _this$audioContext4 === void 0 ? void 0 : _this$audioContext4.close();
+	      var _this$audioContext3;
+	      (_this$audioContext3 = this.audioContext) === null || _this$audioContext3 === void 0 ? void 0 : _this$audioContext3.close();
 	      this.audioContext = null;
 	      this.worklet = null;
 	    }
@@ -7548,12 +7549,12 @@
 	      return load;
 	    }()
 	  }]);
-	  return MainPlayer;
+	  return Player;
 	}(Readable);
 
 	var mainPlayer = /*#__PURE__*/Object.freeze({
 		__proto__: null,
-		default: MainPlayer
+		default: Player
 	});
 
 	var require$$6 = /*@__PURE__*/getAugmentedNamespace(mainPlayer);
@@ -7567,9 +7568,7 @@
 	var RAW = raw;
 	var RAD = rad;
 	var _options = /*#__PURE__*/new WeakMap();
-	var _format = /*#__PURE__*/new WeakMap();
 	var _samplesBuffer = /*#__PURE__*/new WeakMap();
-	var _sampleRate = /*#__PURE__*/new WeakMap();
 	var _chunkSize = /*#__PURE__*/new WeakMap();
 	var _postMessage = /*#__PURE__*/new WeakMap();
 	var WorkletPlayer = /*#__PURE__*/function () {
@@ -7581,19 +7580,12 @@
 	      writable: true,
 	      value: {}
 	    });
-	    _classPrivateFieldInitSpec(this, _format, {
-	      writable: true,
-	      value: null
-	    });
 	    _defineProperty(this, "format_player", null);
 	    _classPrivateFieldInitSpec(this, _samplesBuffer, {
 	      writable: true,
 	      value: null
 	    });
-	    _classPrivateFieldInitSpec(this, _sampleRate, {
-	      writable: true,
-	      value: null
-	    });
+	    _defineProperty(this, "sampleRate", null);
 	    _classPrivateFieldInitSpec(this, _chunkSize, {
 	      writable: true,
 	      value: 0
@@ -7633,17 +7625,13 @@
 	    key: "load",
 	    value: function load(buffer) {
 	      if (buffer instanceof ArrayBuffer) buffer = new Buffer.from(buffer);
-	      _classPrivateFieldSet(this, _format, _classPrivateFieldGet(this, _format) || this.detectFormat(buffer));
-	      if (!_classPrivateFieldGet(this, _format)) throw 'File format not detected';
-	      this.format_player = new (_classPrivateFieldGet(this, _format))(new OPL3(), _classPrivateFieldGet(this, _options));
+	      var format = this.detectFormat(buffer);
+	      if (!format) throw 'File format not detected';
+	      this.format_player = new format(new OPL3(), _classPrivateFieldGet(this, _options));
 	      this.format_player.load(buffer);
-
-	      //this.#aborted = false;
-
 	      _classPrivateFieldSet(this, _samplesBuffer, new Float32Array(_classPrivateFieldGet(this, _options).bufferSize * 2));
-	      _classPrivateFieldSet(this, _sampleRate, 49700 * ((_classPrivateFieldGet(this, _options).sampleRate || 49700) / 49700));
+	      this.sampleRate = _classPrivateFieldGet(this, _options).sampleRate || 48000;
 	      _classPrivateFieldSet(this, _chunkSize, 0);
-	      console.log("worklet_load called", this.format_player);
 	    }
 	  }, {
 	    key: "update",
@@ -7653,13 +7641,13 @@
 	      _classPrivateFieldGet(this, _samplesBuffer).fill(0.0);
 	      if (_classPrivateFieldGet(this, _chunkSize) === 0) {
 	        this.format_player.update();
-	        _classPrivateFieldSet(this, _chunkSize, 2 * (_classPrivateFieldGet(this, _sampleRate) * this.format_player.refresh() | 0));
+	        _classPrivateFieldSet(this, _chunkSize, 2 * (this.sampleRate * this.format_player.refresh() | 0));
 	      }
 	      if (_classPrivateFieldGet(this, _chunkSize) < _classPrivateFieldGet(this, _options).bufferSize * 2) {
 	        this.format_player.opl.read(_classPrivateFieldGet(this, _samplesBuffer), seek, _classPrivateFieldGet(this, _chunkSize));
 	        seek += _classPrivateFieldGet(this, _chunkSize);
 	        this.format_player.update();
-	        _classPrivateFieldSet(this, _chunkSize, 2 * (_classPrivateFieldGet(this, _sampleRate) * this.format_player.refresh() | 0));
+	        _classPrivateFieldSet(this, _chunkSize, 2 * (this.sampleRate * this.format_player.refresh() | 0));
 	      }
 	      if (_classPrivateFieldGet(this, _chunkSize) > 0) {
 	        var samplesSize = Math.min(_classPrivateFieldGet(this, _options).bufferSize * 2 - seek, _classPrivateFieldGet(this, _chunkSize));
@@ -7688,11 +7676,8 @@
 	    RAW: raw,
 	    RAD: rad
 	  },
-	  // WAV: require('wav-arraybuffer'),
-	  // ConvertTo32Bit: require('pcm-bitdepth-converter').From16To32Bit,
-	  // Normalizer: require('pcm-normalizer'),
 	  //Player: require('./lib/player'),
-	  MainPlayer: require$$6,
+	  Player: require$$6,
 	  WorkletPlayer: workletPlayer
 	};
 
