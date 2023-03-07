@@ -22,10 +22,15 @@
     </div>
 
     <script type="text/javascript">
+        var mainPlayer = null;
         var worklet = null;
+        function Test() {
+            
+        }
 
         function TestWorklet() {
-            var src = document.querySelector("#opl3").src;
+            mainPlayer = new OPL3.MainPlayer();
+            /*var src = document.querySelector("#opl3").src;
             fetch(src).then(script => script.text()).then(async (text) => { 
 
                 var audioContext = new AudioContext();
@@ -41,7 +46,7 @@
                 // Pass the whole OPL3 module into the worklet
                 worklet.port.postMessage({ cmd: 'OPL3', value: text });
                 worklet.connect(gainNode);
-            });
+            });*/
         }
     
         function StopWorklet() {
@@ -53,7 +58,8 @@
                 var file = files[0];
                 var data /*ArrayBuffer*/ = await FileToArrayBuffer(file);
 
-                worklet && worklet.port.postMessage({ cmd: 'load', value: data });
+                mainPlayer && mainPlayer.load(data);
+                //worklet && worklet.port.postMessage({ cmd: 'load', value: data });
             }
         }
 

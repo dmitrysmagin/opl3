@@ -1,5 +1,3 @@
-"use strict";
-
 class TestProcessor extends AudioWorkletProcessor {
     constructor() {
         super();
@@ -12,17 +10,21 @@ class TestProcessor extends AudioWorkletProcessor {
                     opl3module(globalThis);
                     console.log(globalThis)
 
-                    this.player = new OPL3.WorkletPlayer(null, {
+                    this.player = new OPL3.WorkletPlayer(this.port.postMessage, {
                         sampleRate: 48000,
-                        prebuffer: 3000,
-                        volume: 3
                     });
                     console.log(this.player)
 
                     break;
                 }
                 case "load": {
-                    this.player.load(e.data.value, null, this.port.postMessage);
+                    this.player.load(e.data.value);
+                    break;
+                }
+                case "play": {
+                    break;
+                }
+                case "stop": {
                     break;
                 }
             }

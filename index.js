@@ -12,5 +12,6 @@ module.exports = {
     // ConvertTo32Bit: require('pcm-bitdepth-converter').From16To32Bit,
     // Normalizer: require('pcm-normalizer'),
     Player: require('./lib/player'),
+    MainPlayer: require('./lib/main-player'),
     WorkletPlayer: require('./lib/worklet-player')
 };

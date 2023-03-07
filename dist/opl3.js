@@ -48,6 +48,312 @@
 	  }
 	  return target;
 	}
+	function _regeneratorRuntime() {
+	  _regeneratorRuntime = function () {
+	    return exports;
+	  };
+	  var exports = {},
+	    Op = Object.prototype,
+	    hasOwn = Op.hasOwnProperty,
+	    defineProperty = Object.defineProperty || function (obj, key, desc) {
+	      obj[key] = desc.value;
+	    },
+	    $Symbol = "function" == typeof Symbol ? Symbol : {},
+	    iteratorSymbol = $Symbol.iterator || "@@iterator",
+	    asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator",
+	    toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag";
+	  function define(obj, key, value) {
+	    return Object.defineProperty(obj, key, {
+	      value: value,
+	      enumerable: !0,
+	      configurable: !0,
+	      writable: !0
+	    }), obj[key];
+	  }
+	  try {
+	    define({}, "");
+	  } catch (err) {
+	    define = function (obj, key, value) {
+	      return obj[key] = value;
+	    };
+	  }
+	  function wrap(innerFn, outerFn, self, tryLocsList) {
+	    var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator,
+	      generator = Object.create(protoGenerator.prototype),
+	      context = new Context(tryLocsList || []);
+	    return defineProperty(generator, "_invoke", {
+	      value: makeInvokeMethod(innerFn, self, context)
+	    }), generator;
+	  }
+	  function tryCatch(fn, obj, arg) {
+	    try {
+	      return {
+	        type: "normal",
+	        arg: fn.call(obj, arg)
+	      };
+	    } catch (err) {
+	      return {
+	        type: "throw",
+	        arg: err
+	      };
+	    }
+	  }
+	  exports.wrap = wrap;
+	  var ContinueSentinel = {};
+	  function Generator() {}
+	  function GeneratorFunction() {}
+	  function GeneratorFunctionPrototype() {}
+	  var IteratorPrototype = {};
+	  define(IteratorPrototype, iteratorSymbol, function () {
+	    return this;
+	  });
+	  var getProto = Object.getPrototypeOf,
+	    NativeIteratorPrototype = getProto && getProto(getProto(values([])));
+	  NativeIteratorPrototype && NativeIteratorPrototype !== Op && hasOwn.call(NativeIteratorPrototype, iteratorSymbol) && (IteratorPrototype = NativeIteratorPrototype);
+	  var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(IteratorPrototype);
+	  function defineIteratorMethods(prototype) {
+	    ["next", "throw", "return"].forEach(function (method) {
+	      define(prototype, method, function (arg) {
+	        return this._invoke(method, arg);
+	      });
+	    });
+	  }
+	  function AsyncIterator(generator, PromiseImpl) {
+	    function invoke(method, arg, resolve, reject) {
+	      var record = tryCatch(generator[method], generator, arg);
+	      if ("throw" !== record.type) {
+	        var result = record.arg,
+	          value = result.value;
+	        return value && "object" == typeof value && hasOwn.call(value, "__await") ? PromiseImpl.resolve(value.__await).then(function (value) {
+	          invoke("next", value, resolve, reject);
+	        }, function (err) {
+	          invoke("throw", err, resolve, reject);
+	        }) : PromiseImpl.resolve(value).then(function (unwrapped) {
+	          result.value = unwrapped, resolve(result);
+	        }, function (error) {
+	          return invoke("throw", error, resolve, reject);
+	        });
+	      }
+	      reject(record.arg);
+	    }
+	    var previousPromise;
+	    defineProperty(this, "_invoke", {
+	      value: function (method, arg) {
+	        function callInvokeWithMethodAndArg() {
+	          return new PromiseImpl(function (resolve, reject) {
+	            invoke(method, arg, resolve, reject);
+	          });
+	        }
+	        return previousPromise = previousPromise ? previousPromise.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg();
+	      }
+	    });
+	  }
+	  function makeInvokeMethod(innerFn, self, context) {
+	    var state = "suspendedStart";
+	    return function (method, arg) {
+	      if ("executing" === state) throw new Error("Generator is already running");
+	      if ("completed" === state) {
+	        if ("throw" === method) throw arg;
+	        return doneResult();
+	      }
+	      for (context.method = method, context.arg = arg;;) {
+	        var delegate = context.delegate;
+	        if (delegate) {
+	          var delegateResult = maybeInvokeDelegate(delegate, context);
+	          if (delegateResult) {
+	            if (delegateResult === ContinueSentinel) continue;
+	            return delegateResult;
+	          }
+	        }
+	        if ("next" === context.method) context.sent = context._sent = context.arg;else if ("throw" === context.method) {
+	          if ("suspendedStart" === state) throw state = "completed", context.arg;
+	          context.dispatchException(context.arg);
+	        } else "return" === context.method && context.abrupt("return", context.arg);
+	        state = "executing";
+	        var record = tryCatch(innerFn, self, context);
+	        if ("normal" === record.type) {
+	          if (state = context.done ? "completed" : "suspendedYield", record.arg === ContinueSentinel) continue;
+	          return {
+	            value: record.arg,
+	            done: context.done
+	          };
+	        }
+	        "throw" === record.type && (state = "completed", context.method = "throw", context.arg = record.arg);
+	      }
+	    };
+	  }
+	  function maybeInvokeDelegate(delegate, context) {
+	    var method = delegate.iterator[context.method];
+	    if (undefined === method) {
+	      if (context.delegate = null, "throw" === context.method) {
+	        if (delegate.iterator.return && (context.method = "return", context.arg = undefined, maybeInvokeDelegate(delegate, context), "throw" === context.method)) return ContinueSentinel;
+	        context.method = "throw", context.arg = new TypeError("The iterator does not provide a 'throw' method");
+	      }
+	      return ContinueSentinel;
+	    }
+	    var record = tryCatch(method, delegate.iterator, context.arg);
+	    if ("throw" === record.type) return context.method = "throw", context.arg = record.arg, context.delegate = null, ContinueSentinel;
+	    var info = record.arg;
+	    return info ? info.done ? (context[delegate.resultName] = info.value, context.next = delegate.nextLoc, "return" !== context.method && (context.method = "next", context.arg = undefined), context.delegate = null, ContinueSentinel) : info : (context.method = "throw", context.arg = new TypeError("iterator result is not an object"), context.delegate = null, ContinueSentinel);
+	  }
+	  function pushTryEntry(locs) {
+	    var entry = {
+	      tryLoc: locs[0]
+	    };
+	    1 in locs && (entry.catchLoc = locs[1]), 2 in locs && (entry.finallyLoc = locs[2], entry.afterLoc = locs[3]), this.tryEntries.push(entry);
+	  }
+	  function resetTryEntry(entry) {
+	    var record = entry.completion || {};
+	    record.type = "normal", delete record.arg, entry.completion = record;
+	  }
+	  function Context(tryLocsList) {
+	    this.tryEntries = [{
+	      tryLoc: "root"
+	    }], tryLocsList.forEach(pushTryEntry, this), this.reset(!0);
+	  }
+	  function values(iterable) {
+	    if (iterable) {
+	      var iteratorMethod = iterable[iteratorSymbol];
+	      if (iteratorMethod) return iteratorMethod.call(iterable);
+	      if ("function" == typeof iterable.next) return iterable;
+	      if (!isNaN(iterable.length)) {
+	        var i = -1,
+	          next = function next() {
+	            for (; ++i < iterable.length;) if (hasOwn.call(iterable, i)) return next.value = iterable[i], next.done = !1, next;
+	            return next.value = undefined, next.done = !0, next;
+	          };
+	        return next.next = next;
+	      }
+	    }
+	    return {
+	      next: doneResult
+	    };
+	  }
+	  function doneResult() {
+	    return {
+	      value: undefined,
+	      done: !0
+	    };
+	  }
+	  return GeneratorFunction.prototype = GeneratorFunctionPrototype, defineProperty(Gp, "constructor", {
+	    value: GeneratorFunctionPrototype,
+	    configurable: !0
+	  }), defineProperty(GeneratorFunctionPrototype, "constructor", {
+	    value: GeneratorFunction,
+	    configurable: !0
+	  }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, toStringTagSymbol, "GeneratorFunction"), exports.isGeneratorFunction = function (genFun) {
+	    var ctor = "function" == typeof genFun && genFun.constructor;
+	    return !!ctor && (ctor === GeneratorFunction || "GeneratorFunction" === (ctor.displayName || ctor.name));
+	  }, exports.mark = function (genFun) {
+	    return Object.setPrototypeOf ? Object.setPrototypeOf(genFun, GeneratorFunctionPrototype) : (genFun.__proto__ = GeneratorFunctionPrototype, define(genFun, toStringTagSymbol, "GeneratorFunction")), genFun.prototype = Object.create(Gp), genFun;
+	  }, exports.awrap = function (arg) {
+	    return {
+	      __await: arg
+	    };
+	  }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, asyncIteratorSymbol, function () {
+	    return this;
+	  }), exports.AsyncIterator = AsyncIterator, exports.async = function (innerFn, outerFn, self, tryLocsList, PromiseImpl) {
+	    void 0 === PromiseImpl && (PromiseImpl = Promise);
+	    var iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList), PromiseImpl);
+	    return exports.isGeneratorFunction(outerFn) ? iter : iter.next().then(function (result) {
+	      return result.done ? result.value : iter.next();
+	    });
+	  }, defineIteratorMethods(Gp), define(Gp, toStringTagSymbol, "Generator"), define(Gp, iteratorSymbol, function () {
+	    return this;
+	  }), define(Gp, "toString", function () {
+	    return "[object Generator]";
+	  }), exports.keys = function (val) {
+	    var object = Object(val),
+	      keys = [];
+	    for (var key in object) keys.push(key);
+	    return keys.reverse(), function next() {
+	      for (; keys.length;) {
+	        var key = keys.pop();
+	        if (key in object) return next.value = key, next.done = !1, next;
+	      }
+	      return next.done = !0, next;
+	    };
+	  }, exports.values = values, Context.prototype = {
+	    constructor: Context,
+	    reset: function (skipTempReset) {
+	      if (this.prev = 0, this.next = 0, this.sent = this._sent = undefined, this.done = !1, this.delegate = null, this.method = "next", this.arg = undefined, this.tryEntries.forEach(resetTryEntry), !skipTempReset) for (var name in this) "t" === name.charAt(0) && hasOwn.call(this, name) && !isNaN(+name.slice(1)) && (this[name] = undefined);
+	    },
+	    stop: function () {
+	      this.done = !0;
+	      var rootRecord = this.tryEntries[0].completion;
+	      if ("throw" === rootRecord.type) throw rootRecord.arg;
+	      return this.rval;
+	    },
+	    dispatchException: function (exception) {
+	      if (this.done) throw exception;
+	      var context = this;
+	      function handle(loc, caught) {
+	        return record.type = "throw", record.arg = exception, context.next = loc, caught && (context.method = "next", context.arg = undefined), !!caught;
+	      }
+	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+	        var entry = this.tryEntries[i],
+	          record = entry.completion;
+	        if ("root" === entry.tryLoc) return handle("end");
+	        if (entry.tryLoc <= this.prev) {
+	          var hasCatch = hasOwn.call(entry, "catchLoc"),
+	            hasFinally = hasOwn.call(entry, "finallyLoc");
+	          if (hasCatch && hasFinally) {
+	            if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0);
+	            if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc);
+	          } else if (hasCatch) {
+	            if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0);
+	          } else {
+	            if (!hasFinally) throw new Error("try statement without catch or finally");
+	            if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc);
+	          }
+	        }
+	      }
+	    },
+	    abrupt: function (type, arg) {
+	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+	        var entry = this.tryEntries[i];
+	        if (entry.tryLoc <= this.prev && hasOwn.call(entry, "finallyLoc") && this.prev < entry.finallyLoc) {
+	          var finallyEntry = entry;
+	          break;
+	        }
+	      }
+	      finallyEntry && ("break" === type || "continue" === type) && finallyEntry.tryLoc <= arg && arg <= finallyEntry.finallyLoc && (finallyEntry = null);
+	      var record = finallyEntry ? finallyEntry.completion : {};
+	      return record.type = type, record.arg = arg, finallyEntry ? (this.method = "next", this.next = finallyEntry.finallyLoc, ContinueSentinel) : this.complete(record);
+	    },
+	    complete: function (record, afterLoc) {
+	      if ("throw" === record.type) throw record.arg;
+	      return "break" === record.type || "continue" === record.type ? this.next = record.arg : "return" === record.type ? (this.rval = this.arg = record.arg, this.method = "return", this.next = "end") : "normal" === record.type && afterLoc && (this.next = afterLoc), ContinueSentinel;
+	    },
+	    finish: function (finallyLoc) {
+	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+	        var entry = this.tryEntries[i];
+	        if (entry.finallyLoc === finallyLoc) return this.complete(entry.completion, entry.afterLoc), resetTryEntry(entry), ContinueSentinel;
+	      }
+	    },
+	    catch: function (tryLoc) {
+	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+	        var entry = this.tryEntries[i];
+	        if (entry.tryLoc === tryLoc) {
+	          var record = entry.completion;
+	          if ("throw" === record.type) {
+	            var thrown = record.arg;
+	            resetTryEntry(entry);
+	          }
+	          return thrown;
+	        }
+	      }
+	      throw new Error("illegal catch attempt");
+	    },
+	    delegateYield: function (iterable, resultName, nextLoc) {
+	      return this.delegate = {
+	        iterator: values(iterable),
+	        resultName: resultName,
+	        nextLoc: nextLoc
+	      }, "next" === this.method && (this.arg = undefined), ContinueSentinel;
+	    }
+	  }, exports;
+	}
 	function _typeof(obj) {
 	  "@babel/helpers - typeof";
 
@@ -56,6 +362,36 @@
 	  } : function (obj) {
 	    return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
 	  }, _typeof(obj);
+	}
+	function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
+	  try {
+	    var info = gen[key](arg);
+	    var value = info.value;
+	  } catch (error) {
+	    reject(error);
+	    return;
+	  }
+	  if (info.done) {
+	    resolve(value);
+	  } else {
+	    Promise.resolve(value).then(_next, _throw);
+	  }
+	}
+	function _asyncToGenerator(fn) {
+	  return function () {
+	    var self = this,
+	      args = arguments;
+	    return new Promise(function (resolve, reject) {
+	      var gen = fn.apply(self, args);
+	      function _next(value) {
+	        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value);
+	      }
+	      function _throw(err) {
+	        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err);
+	      }
+	      _next(undefined);
+	    });
+	  };
 	}
 	function _classCallCheck(instance, Constructor) {
 	  if (!(instance instanceof Constructor)) {
@@ -7514,11 +7850,11 @@
 	//var MUS = require('../format/mus');
 	var RAW$1 = raw;
 	var RAD$1 = rad;
-	var currentScriptSrc = null;
+	var currentScriptSrc$1 = null;
 	try {
-	  currentScriptSrc = document.currentScript.src;
+	  currentScriptSrc$1 = document.currentScript.src;
 	} catch (err) {}
-	var _options$1 = /*#__PURE__*/new WeakMap();
+	var _options$2 = /*#__PURE__*/new WeakMap();
 	var _format$1 = /*#__PURE__*/new WeakMap();
 	var _context = /*#__PURE__*/new WeakMap();
 	var _gain = /*#__PURE__*/new WeakMap();
@@ -7529,7 +7865,7 @@
 	var _backupQueue = /*#__PURE__*/new WeakMap();
 	var _worker = /*#__PURE__*/new WeakMap();
 	var _aborted = /*#__PURE__*/new WeakMap();
-	var _sendPostMessage$1 = /*#__PURE__*/new WeakMap();
+	var _sendPostMessage = /*#__PURE__*/new WeakMap();
 	var _bufferWriter = /*#__PURE__*/new WeakMap();
 	var _callback = /*#__PURE__*/new WeakMap();
 	var Player = /*#__PURE__*/function (_Readable) {
@@ -7539,7 +7875,7 @@
 	    var _this;
 	    _classCallCheck(this, Player);
 	    _this = _super.call(this);
-	    _classPrivateFieldInitSpec(_assertThisInitialized(_this), _options$1, {
+	    _classPrivateFieldInitSpec(_assertThisInitialized(_this), _options$2, {
 	      writable: true,
 	      value: {}
 	    });
@@ -7583,7 +7919,7 @@
 	      writable: true,
 	      value: false
 	    });
-	    _classPrivateFieldInitSpec(_assertThisInitialized(_this), _sendPostMessage$1, {
+	    _classPrivateFieldInitSpec(_assertThisInitialized(_this), _sendPostMessage, {
 	      writable: true,
 	      value: false
 	    });
@@ -7595,10 +7931,9 @@
 	      writable: true,
 	      value: null
 	    });
-	    _defineProperty(_assertThisInitialized(_this), "worklet_player", null);
-	    _classPrivateFieldSet(_assertThisInitialized(_this), _options$1, options || {});
-	    _classPrivateFieldGet(_assertThisInitialized(_this), _options$1).prebuffer = _classPrivateFieldGet(_assertThisInitialized(_this), _options$1).prebuffer || 200;
-	    _classPrivateFieldGet(_assertThisInitialized(_this), _options$1).bufferSize = _classPrivateFieldGet(_assertThisInitialized(_this), _options$1).bufferSize || 128;
+	    _classPrivateFieldSet(_assertThisInitialized(_this), _options$2, options || {});
+	    _classPrivateFieldGet(_assertThisInitialized(_this), _options$2).prebuffer = _classPrivateFieldGet(_assertThisInitialized(_this), _options$2).prebuffer || 200;
+	    _classPrivateFieldGet(_assertThisInitialized(_this), _options$2).bufferSize = _classPrivateFieldGet(_assertThisInitialized(_this), _options$2).bufferSize || 128;
 	    _classPrivateFieldSet(_assertThisInitialized(_this), _format$1, format);
 
 	    // Forward events from Worker to main thread if needed
@@ -7606,14 +7941,14 @@
 	      if (_classPrivateFieldGet(_assertThisInitialized(_this), _bufferWriter)) {
 	        var pcmBuffer = _classPrivateFieldGet(_assertThisInitialized(_this), _bufferWriter).getContents().buffer;
 	        if (typeof _classPrivateFieldGet(_assertThisInitialized(_this), _callback) == 'function') _classPrivateFieldGet(_assertThisInitialized(_this), _callback).call(_assertThisInitialized(_this), null, pcmBuffer);
-	        _classPrivateFieldGet(_assertThisInitialized(_this), _options$1).prebuffer = -1;
+	        _classPrivateFieldGet(_assertThisInitialized(_this), _options$2).prebuffer = -1;
 	      }
-	      if (_classPrivateFieldGet(_assertThisInitialized(_this), _sendPostMessage$1)) postMessage({
+	      if (_classPrivateFieldGet(_assertThisInitialized(_this), _sendPostMessage)) postMessage({
 	        cmd: 'end'
 	      });
 	    });
 	    _this.on('progress', function (value) {
-	      if (_classPrivateFieldGet(_assertThisInitialized(_this), _sendPostMessage$1)) postMessage({
+	      if (_classPrivateFieldGet(_assertThisInitialized(_this), _sendPostMessage)) postMessage({
 	        cmd: 'progress',
 	        value: value
 	      });
@@ -7622,7 +7957,7 @@
 	      throw err;
 	    });
 	    _this.on('midi', function (midi) {
-	      if (_classPrivateFieldGet(_assertThisInitialized(_this), _sendPostMessage$1)) postMessage({
+	      if (_classPrivateFieldGet(_assertThisInitialized(_this), _sendPostMessage)) postMessage({
 	        cmd: 'midi',
 	        value: midi
 	      }, [midi]);
@@ -7632,7 +7967,7 @@
 	      if (typeof AudioContext != 'undefined') {
 	        if (_classPrivateFieldGet(_assertThisInitialized(_this), _backupQueue)) _classPrivateFieldGet(_assertThisInitialized(_this), _backupQueue).push(chunk);else _classPrivateFieldGet(_assertThisInitialized(_this), _queue).push(chunk);
 	      }
-	      if (_classPrivateFieldGet(_assertThisInitialized(_this), _sendPostMessage$1)) postMessage({
+	      if (_classPrivateFieldGet(_assertThisInitialized(_this), _sendPostMessage)) postMessage({
 	        cmd: 'data',
 	        value: chunk.buffer
 	      }, [chunk.buffer]);
@@ -7646,8 +7981,6 @@
 
 	    // Main thread: do nothing
 	    // Worker: forward messages to main thread
-
-	    // Worklet player
 
 	    function get() {
 	      return Math.floor(_classPrivateFieldGet(this, _queuePos) / _classPrivateFieldGet(this, _bufferPerMs));
@@ -7739,20 +8072,20 @@
 	        var source = _classPrivateFieldGet(this, _context).createBufferSource();
 	        var processor = _classPrivateFieldGet(this, _context).createScriptProcessor(2048, 0, 2);
 	        _classPrivateFieldSet(this, _gain, _classPrivateFieldGet(this, _context).createGain());
-	        _classPrivateFieldGet(this, _gain).gain.value = _classPrivateFieldGet(this, _options$1).volume || 1;
+	        _classPrivateFieldGet(this, _gain).gain.value = _classPrivateFieldGet(this, _options$2).volume || 1;
 	        _classPrivateFieldSet(this, _queue, []);
 	        var bufferLeft, bufferRight, silence;
 	        var audioQueueFn = function audioQueueFn(e) {
 	          var outputBuffer = e.outputBuffer;
-	          if (_this2.length >= _classPrivateFieldGet(_this2, _options$1).prebuffer) {
-	            for (var i = 0; i < processor.bufferSize / _classPrivateFieldGet(_this2, _options$1).bufferSize; i++) {
+	          if (_this2.length >= _classPrivateFieldGet(_this2, _options$2).prebuffer) {
+	            for (var i = 0; i < processor.bufferSize / _classPrivateFieldGet(_this2, _options$2).bufferSize; i++) {
 	              var tmp = _classPrivateFieldGet(_this2, _queue)[_classPrivateFieldGet(_this2, _queuePos)];
 	              if (tmp) {
 	                var _this$queuePos;
 	                _classPrivateFieldSet(_this2, _queuePos, (_this$queuePos = _classPrivateFieldGet(_this2, _queuePos), _this$queuePos++, _this$queuePos));
 	                _this2.emit('position', _this2.position);
 	                var dv = new DataView(tmp.buffer || tmp);
-	                for (var j = 0, offset = 0; j < _classPrivateFieldGet(_this2, _options$1).bufferSize; j++, offset += 8) {
+	                for (var j = 0, offset = 0; j < _classPrivateFieldGet(_this2, _options$2).bufferSize; j++, offset += 8) {
 	                  bufferLeft[j] = dv.getFloat32(offset, true);
 	                  bufferRight[j] = dv.getFloat32(offset + 4, true);
 	                }
@@ -7760,23 +8093,23 @@
 	                bufferLeft.set(silence);
 	                bufferRight.set(silence);
 	              }
-	              outputBuffer.copyToChannel(bufferLeft, 0, i * _classPrivateFieldGet(_this2, _options$1).bufferSize);
-	              outputBuffer.copyToChannel(bufferRight, 1, i * _classPrivateFieldGet(_this2, _options$1).bufferSize);
+	              outputBuffer.copyToChannel(bufferLeft, 0, i * _classPrivateFieldGet(_this2, _options$2).bufferSize);
+	              outputBuffer.copyToChannel(bufferRight, 1, i * _classPrivateFieldGet(_this2, _options$2).bufferSize);
 	            }
 	          }
 	        };
 	        _classPrivateFieldSet(this, _backupQueue, null);
 	        _classPrivateFieldSet(this, _isPlayInit, false);
 	        if (!_classPrivateFieldGet(this, _isPlayInit)) {
-	          _classPrivateFieldGet(this, _options$1).bufferSize = _classPrivateFieldGet(this, _options$1).bufferSize || 128;
-	          _classPrivateFieldGet(this, _options$1).sampleRate = _classPrivateFieldGet(this, _context).sampleRate;
-	          _classPrivateFieldGet(this, _options$1).bitDepth = 32; // other values don't work at all
+	          _classPrivateFieldGet(this, _options$2).bufferSize = _classPrivateFieldGet(this, _options$2).bufferSize || 128;
+	          _classPrivateFieldGet(this, _options$2).sampleRate = _classPrivateFieldGet(this, _context).sampleRate;
+	          _classPrivateFieldGet(this, _options$2).bitDepth = 32; // other values don't work at all
 
-	          bufferLeft = new Float32Array(_classPrivateFieldGet(this, _options$1).bufferSize);
-	          bufferRight = new Float32Array(_classPrivateFieldGet(this, _options$1).bufferSize);
-	          silence = new Float32Array(_classPrivateFieldGet(this, _options$1).bufferSize);
+	          bufferLeft = new Float32Array(_classPrivateFieldGet(this, _options$2).bufferSize);
+	          bufferRight = new Float32Array(_classPrivateFieldGet(this, _options$2).bufferSize);
+	          silence = new Float32Array(_classPrivateFieldGet(this, _options$2).bufferSize);
 	          _classPrivateFieldSet(this, _queuePos, 0);
-	          _classPrivateFieldSet(this, _bufferPerMs, _classPrivateFieldGet(this, _options$1).sampleRate / 1000 / _classPrivateFieldGet(this, _options$1).bufferSize);
+	          _classPrivateFieldSet(this, _bufferPerMs, _classPrivateFieldGet(this, _options$2).sampleRate / 1000 / _classPrivateFieldGet(this, _options$2).bufferSize);
 	          this.load(buffer);
 	          processor.onaudioprocess = audioQueueFn;
 	          source.connect(processor);
@@ -7797,7 +8130,7 @@
 	      var callback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 	      var sendPostMessage = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 	      _classPrivateFieldSet(this, _callback, callback);
-	      if (!_classPrivateFieldGet(this, _options$1).disableWorker && browser$1 && typeof window != 'undefined' && 'Worker' in window) {
+	      if (!_classPrivateFieldGet(this, _options$2).disableWorker && browser$1 && typeof window != 'undefined' && 'Worker' in window) {
 	        this._load_worker(buffer, callback, sendPostMessage);
 	      } else {
 	        this._load_internal(buffer, callback, sendPostMessage);
@@ -7819,16 +8152,16 @@
 	        }));
 	        this.pipe(_classPrivateFieldGet(this, _bufferWriter));
 	        if (buffer instanceof ArrayBuffer) buffer = new Buffer.from(buffer);
-	        _classPrivateFieldSet(this, _sendPostMessage$1, sendPostMessage);
+	        _classPrivateFieldSet(this, _sendPostMessage, sendPostMessage);
 	        _classPrivateFieldSet(this, _format$1, _classPrivateFieldGet(this, _format$1) || this.detectFormat(buffer));
 	        if (!_classPrivateFieldGet(this, _format$1)) throw 'File format not detected';
 
 	        // Make player global?
-	        var player = new (_classPrivateFieldGet(this, _format$1))(new OPL3$1(), _classPrivateFieldGet(this, _options$1));
+	        var player = new (_classPrivateFieldGet(this, _format$1))(new OPL3$1(), _classPrivateFieldGet(this, _options$2));
 	        player.load(buffer);
 	        _classPrivateFieldSet(this, _aborted, false);
-	        var samplesBuffer = new Float32Array(_classPrivateFieldGet(this, _options$1).bufferSize * 2);
-	        var sampleRate = 49700 * ((_classPrivateFieldGet(this, _options$1).sampleRate || 49700) / 49700);
+	        var samplesBuffer = new Float32Array(_classPrivateFieldGet(this, _options$2).bufferSize * 2);
+	        var sampleRate = 49700 * ((_classPrivateFieldGet(this, _options$2).sampleRate || 49700) / 49700);
 	        var fn = function fn() {
 	          if (_classPrivateFieldGet(_this3, _aborted)) return;
 	          while (player.update()) {
@@ -7836,7 +8169,7 @@
 	            _this3.emit('progress', Math.floor(player.position / player.data.byteLength * 1000) / 10);
 	            var chunkSize = 2 * (sampleRate * player.refresh() | 0);
 	            while (chunkSize > 0) {
-	              var samplesSize = Math.min(_classPrivateFieldGet(_this3, _options$1).bufferSize * 2, chunkSize);
+	              var samplesSize = Math.min(_classPrivateFieldGet(_this3, _options$2).bufferSize * 2, chunkSize);
 	              chunkSize -= samplesSize;
 	              player.opl.read(samplesBuffer);
 
@@ -7861,10 +8194,10 @@
 	      var _this4 = this;
 	      var callback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 	      var sendPostMessage = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-	      _classPrivateFieldSet(this, _sendPostMessage$1, sendPostMessage);
+	      _classPrivateFieldSet(this, _sendPostMessage, sendPostMessage);
 	      _classPrivateFieldSet(this, _format$1, _classPrivateFieldGet(this, _format$1) || this.detectFormat(buffer));
 	      if (!_classPrivateFieldGet(this, _format$1)) throw 'File format not detected';
-	      var workerSrc = 'importScripts("' + currentScriptSrc + '");\n' + 'onmessage = (msg) => {\n' + '   var player = new OPL3.Player(null, msg.data.options);\n' + '   player.load(msg.data.buffer, ' + (typeof callback == 'function' ? '(err, buffer) => {\n' + '       if (err) throw err;\n' + '       postMessage({ cmd: "callback", value: buffer }, [buffer]);\n' + '   }' : 'null') + ', true);\n' + '};';
+	      var workerSrc = 'importScripts("' + currentScriptSrc$1 + '");\n' + 'onmessage = (msg) => {\n' + '   var player = new OPL3.Player(null, msg.data.options);\n' + '   player.load(msg.data.buffer, ' + (typeof callback == 'function' ? '(err, buffer) => {\n' + '       if (err) throw err;\n' + '       postMessage({ cmd: "callback", value: buffer }, [buffer]);\n' + '   }' : 'null') + ', true);\n' + '};';
 	      var blob = new Blob([workerSrc], {
 	        type: 'application/javascript'
 	      });
@@ -7887,7 +8220,7 @@
 	      };
 
 	      // Start worker ;)
-	      var options = _objectSpread2(_objectSpread2({}, _classPrivateFieldGet(this, _options$1)), {}, {
+	      var options = _objectSpread2(_objectSpread2({}, _classPrivateFieldGet(this, _options$2)), {}, {
 	        prebuffer: Infinity
 	      });
 	      _classPrivateFieldGet(this, _worker).postMessage({
@@ -7899,6 +8232,110 @@
 	  return Player;
 	}(Readable);
 	var player = Player;
+
+	var currentScriptSrc = null;
+	try {
+	  currentScriptSrc = document.currentScript.src;
+	} catch (err) {}
+	var _options$1 = /*#__PURE__*/new WeakMap();
+	var MainPlayer = /*#__PURE__*/function (_Readable) {
+	  _inherits(MainPlayer, _Readable);
+	  var _super = _createSuper(MainPlayer);
+	  function MainPlayer(format, options) {
+	    var _this;
+	    _classCallCheck(this, MainPlayer);
+	    _this = _super.call(this);
+	    _classPrivateFieldInitSpec(_assertThisInitialized(_this), _options$1, {
+	      writable: true,
+	      value: {}
+	    });
+	    _defineProperty(_assertThisInitialized(_this), "audioContext", null);
+	    _defineProperty(_assertThisInitialized(_this), "worklet", null);
+	    _classPrivateFieldSet(_assertThisInitialized(_this), _options$1, options || {});
+	    _this.init();
+	    return _this;
+	  }
+	  _createClass(MainPlayer, [{
+	    key: "init",
+	    value: function () {
+	      var _init = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
+	        var _this2 = this;
+	        return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+	          while (1) {
+	            switch (_context2.prev = _context2.next) {
+	              case 0:
+	                fetch(currentScriptSrc).then(function (script) {
+	                  return script.text();
+	                }).then( /*#__PURE__*/function () {
+	                  var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(text) {
+	                    var gainNode;
+	                    return _regeneratorRuntime().wrap(function _callee$(_context) {
+	                      while (1) {
+	                        switch (_context.prev = _context.next) {
+	                          case 0:
+	                            _this2.audioContext = new AudioContext();
+	                            _context.next = 3;
+	                            return _this2.audioContext.audioWorklet.addModule("test-processor.js");
+	                          case 3:
+	                            _this2.worklet = new AudioWorkletNode(_this2.audioContext, "test-generator", {
+	                              numberOfOutputs: 1,
+	                              outputChannelCount: [2]
+	                            });
+	                            gainNode = _this2.audioContext.createGain();
+	                            gainNode.gain.value = 4;
+	                            gainNode.connect(_this2.audioContext.destination);
+
+	                            // Pass the whole OPL3 module into the worklet
+	                            _this2.worklet.port.postMessage({
+	                              cmd: 'OPL3',
+	                              value: text
+	                            });
+	                            _this2.worklet.connect(gainNode);
+	                          case 9:
+	                          case "end":
+	                            return _context.stop();
+	                        }
+	                      }
+	                    }, _callee);
+	                  }));
+	                  return function (_x) {
+	                    return _ref.apply(this, arguments);
+	                  };
+	                }());
+	              case 1:
+	              case "end":
+	                return _context2.stop();
+	            }
+	          }
+	        }, _callee2);
+	      }));
+	      function init() {
+	        return _init.apply(this, arguments);
+	      }
+	      return init;
+	    }()
+	  }, {
+	    key: "play",
+	    value: function play(buffer) {}
+	  }, {
+	    key: "load",
+	    value: function load(buffer) {
+	      // ArrayBuffer
+	      this.worklet && this.worklet.port.postMessage({
+	        cmd: 'load',
+	        value: buffer
+	      });
+	    }
+	  }]);
+	  return MainPlayer;
+	}(Readable$1);
+
+	var mainPlayer = /*#__PURE__*/Object.freeze({
+		__proto__: null,
+		default: MainPlayer
+	});
+
+	var require$$7 = /*@__PURE__*/getAugmentedNamespace(mainPlayer);
 
 	// To be executed inside AudioWorklet in AudioWorkletGlobalScope
 
@@ -7913,11 +8350,11 @@
 	var _samplesBuffer = /*#__PURE__*/new WeakMap();
 	var _sampleRate = /*#__PURE__*/new WeakMap();
 	var _chunkSize = /*#__PURE__*/new WeakMap();
-	var _sendPostMessage = /*#__PURE__*/new WeakMap();
+	var _postMessage = /*#__PURE__*/new WeakMap();
 	var WorkletPlayer = /*#__PURE__*/function () {
 	  // 48000 for audio worklet
 
-	  function WorkletPlayer(format, options) {
+	  function WorkletPlayer(postMessage, options) {
 	    _classCallCheck(this, WorkletPlayer);
 	    _classPrivateFieldInitSpec(this, _options, {
 	      writable: true,
@@ -7940,10 +8377,11 @@
 	      writable: true,
 	      value: 0
 	    });
-	    _classPrivateFieldInitSpec(this, _sendPostMessage, {
+	    _classPrivateFieldInitSpec(this, _postMessage, {
 	      writable: true,
 	      value: null
 	    });
+	    _classPrivateFieldSet(this, _postMessage, postMessage);
 	    _classPrivateFieldSet(this, _options, options || {});
 	    _classPrivateFieldGet(this, _options).bufferSize = 128; // length of output in processor    
 	  }
@@ -7973,9 +8411,7 @@
 	  }, {
 	    key: "load",
 	    value: function load(buffer) {
-	      var sendPostMessage = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 	      if (buffer instanceof ArrayBuffer) buffer = new Buffer.from(buffer);
-	      _classPrivateFieldSet(this, _sendPostMessage, sendPostMessage);
 	      _classPrivateFieldSet(this, _format, _classPrivateFieldGet(this, _format) || this.detectFormat(buffer));
 	      if (!_classPrivateFieldGet(this, _format)) throw 'File format not detected';
 	      this.format_player = new (_classPrivateFieldGet(this, _format))(new OPL3(), _classPrivateFieldGet(this, _options));
@@ -8035,6 +8471,7 @@
 	  // ConvertTo32Bit: require('pcm-bitdepth-converter').From16To32Bit,
 	  // Normalizer: require('pcm-normalizer'),
 	  Player: player,
+	  MainPlayer: require$$7,
 	  WorkletPlayer: workletPlayer
 	};
 
