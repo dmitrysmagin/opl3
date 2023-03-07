@@ -4,8 +4,6 @@
 	(global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.OPL3 = factory());
 })(this, (function () { 'use strict';
 
-	var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
-
 	function getAugmentedNamespace(n) {
 	  var f = n.default;
 		if (typeof f == "function") {
@@ -27,27 +25,6 @@
 		return a;
 	}
 
-	function ownKeys(object, enumerableOnly) {
-	  var keys = Object.keys(object);
-	  if (Object.getOwnPropertySymbols) {
-	    var symbols = Object.getOwnPropertySymbols(object);
-	    enumerableOnly && (symbols = symbols.filter(function (sym) {
-	      return Object.getOwnPropertyDescriptor(object, sym).enumerable;
-	    })), keys.push.apply(keys, symbols);
-	  }
-	  return keys;
-	}
-	function _objectSpread2(target) {
-	  for (var i = 1; i < arguments.length; i++) {
-	    var source = null != arguments[i] ? arguments[i] : {};
-	    i % 2 ? ownKeys(Object(source), !0).forEach(function (key) {
-	      _defineProperty(target, key, source[key]);
-	    }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) {
-	      Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
-	    });
-	  }
-	  return target;
-	}
 	function _regeneratorRuntime() {
 	  _regeneratorRuntime = function () {
 	    return exports;
@@ -560,7 +537,7 @@
 	  privateMap.set(obj, value);
 	}
 
-	var OPL3$2 = /*#__PURE__*/function () {
+	var OPL3$1 = /*#__PURE__*/function () {
 	  function OPL3() {
 	    _classCallCheck(this, OPL3);
 	    this.nts = 0;
@@ -928,7 +905,7 @@
 	  }]);
 	  return OPL3;
 	}();
-	var opl3$1 = OPL3$2;
+	var opl3$1 = OPL3$1;
 	var Channel = /*#__PURE__*/function () {
 	  function Channel(baseAddress, opl) {
 	    _classCallCheck(this, Channel);
@@ -2069,7 +2046,7 @@
 	};
 
 	var extend$1 = extend$2;
-	function LAA$2(opl, options) {
+	function LAA$1(opl, options) {
 	  options = options || {};
 	  this.opl = opl;
 	  this.channels = [];
@@ -2100,8 +2077,8 @@
 	    this.chp[i] = new Int32Array(3);
 	  }
 	}
-	var laa = LAA$2;
-	extend$1(LAA$2.prototype, {
+	var laa = LAA$1;
+	extend$1(LAA$1.prototype, {
 	  ADL: [0x41, 0x44, 0x4c],
 	  LUCAS_STYLE: 1,
 	  CMF_STYLE: 2,
@@ -3100,7 +3077,7 @@
 	  }
 	  return length | 0;
 	}
-	Buffer.isBuffer = isBuffer$1;
+	Buffer.isBuffer = isBuffer;
 	function internalIsBuffer(b) {
 	  return !!(b != null && b._isBuffer);
 	}
@@ -4339,7 +4316,7 @@
 	// the following is from is-buffer, also by Feross Aboukhadijeh and with same lisence
 	// The _isBuffer check is for Safari 5-7 support, because it's missing
 	// Object.prototype.constructor. Remove this eventually
-	function isBuffer$1(obj) {
+	function isBuffer(obj) {
 	  return obj != null && (!!obj._isBuffer || isFastBuffer(obj) || isSlowBuffer(obj));
 	}
 	function isFastBuffer(obj) {
@@ -4351,7 +4328,7 @@
 	  return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isFastBuffer(obj.slice(0, 0));
 	}
 
-	var DRO$2 = /*#__PURE__*/function () {
+	var DRO$1 = /*#__PURE__*/function () {
 	  function DRO(opl) {
 	    _classCallCheck(this, DRO);
 	    this.opl = opl;
@@ -4429,14 +4406,14 @@
 	  }]);
 	  return DRO;
 	}();
-	var dro = DRO$2;
+	var dro = DRO$1;
 
 	var extend = extend$2;
-	function IMF$2(opl) {
+	function IMF$1(opl) {
 	  this.opl = opl;
 	}
-	var imf = IMF$2;
-	extend(IMF$2.prototype, {
+	var imf = IMF$1;
+	extend(IMF$1.prototype, {
 	  load: function load(buffer) {
 	    this.data = new DataView(buffer.buffer);
 	    this.size = this.data.getUint16(0, true);
@@ -4481,7 +4458,7 @@
 	  }
 	});
 
-	var RAW$2 = /*#__PURE__*/function () {
+	var RAW$1 = /*#__PURE__*/function () {
 	  function RAW(opl) {
 	    _classCallCheck(this, RAW);
 	    this.opl = opl;
@@ -4551,10 +4528,10 @@
 	  }]);
 	  return RAW;
 	}();
-	var raw = RAW$2;
+	var raw = RAW$1;
 
 	var _rad = /*#__PURE__*/new WeakMap();
-	var RAD$2 = /*#__PURE__*/function () {
+	var RAD$1 = /*#__PURE__*/function () {
 	  function RAD(opl) {
 	    _classCallCheck(this, RAD);
 	    _classPrivateFieldInitSpec(this, _rad, {
@@ -4671,9 +4648,7 @@
 	  }]);
 	  return RAD;
 	}();
-	var rad = RAD$2;
-
-	var browser$1 = true;
+	var rad = RAD$1;
 
 	var domain;
 
@@ -5661,17 +5636,11 @@
 	function isNull(arg) {
 	  return arg === null;
 	}
-	function isNullOrUndefined(arg) {
-	  return arg == null;
-	}
 	function isNumber(arg) {
 	  return typeof arg === 'number';
 	}
 	function isString(arg) {
 	  return typeof arg === 'string';
-	}
-	function isSymbol(arg) {
-	  return _typeof(arg) === 'symbol';
 	}
 	function isUndefined(arg) {
 	  return arg === void 0;
@@ -5691,32 +5660,8 @@
 	function isFunction(arg) {
 	  return typeof arg === 'function';
 	}
-	function isPrimitive(arg) {
-	  return arg === null || typeof arg === 'boolean' || typeof arg === 'number' || typeof arg === 'string' || _typeof(arg) === 'symbol' ||
-	  // ES6 symbol
-	  typeof arg === 'undefined';
-	}
-	function isBuffer(maybeBuf) {
-	  return isBuffer$1(maybeBuf);
-	}
 	function objectToString(o) {
 	  return Object.prototype.toString.call(o);
-	}
-	function pad(n) {
-	  return n < 10 ? '0' + n.toString(10) : n.toString(10);
-	}
-	var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-	// 26 Feb 16:19:34
-	function timestamp() {
-	  var d = new Date();
-	  var time = [pad(d.getHours()), pad(d.getMinutes()), pad(d.getSeconds())].join(':');
-	  return [d.getDate(), months[d.getMonth()], time].join(' ');
-	}
-
-	// log is just a thin wrapper to console.log that prepends a timestamp
-	function log() {
-	  console.log('%s - %s', timestamp(), format.apply(null, arguments));
 	}
 	function _extend(origin, add) {
 	  // Don't do anything if add isn't an object
@@ -5731,57 +5676,6 @@
 	function hasOwnProperty(obj, prop) {
 	  return Object.prototype.hasOwnProperty.call(obj, prop);
 	}
-	var util$2 = {
-	  inherits: inherits$1,
-	  _extend: _extend,
-	  log: log,
-	  isBuffer: isBuffer,
-	  isPrimitive: isPrimitive,
-	  isFunction: isFunction,
-	  isError: isError,
-	  isDate: isDate,
-	  isObject: isObject,
-	  isRegExp: isRegExp,
-	  isUndefined: isUndefined,
-	  isSymbol: isSymbol,
-	  isString: isString,
-	  isNumber: isNumber,
-	  isNullOrUndefined: isNullOrUndefined,
-	  isNull: isNull,
-	  isBoolean: isBoolean,
-	  isArray: isArray,
-	  inspect: inspect,
-	  deprecate: deprecate,
-	  format: format,
-	  debuglog: debuglog
-	};
-
-	var util$3 = /*#__PURE__*/Object.freeze({
-		__proto__: null,
-		format: format,
-		deprecate: deprecate,
-		debuglog: debuglog,
-		inspect: inspect,
-		isArray: isArray,
-		isBoolean: isBoolean,
-		isNull: isNull,
-		isNullOrUndefined: isNullOrUndefined,
-		isNumber: isNumber,
-		isString: isString,
-		isSymbol: isSymbol,
-		isUndefined: isUndefined,
-		isRegExp: isRegExp,
-		isObject: isObject,
-		isDate: isDate,
-		isError: isError,
-		isFunction: isFunction,
-		isPrimitive: isPrimitive,
-		isBuffer: isBuffer,
-		log: log,
-		inherits: inherits$1,
-		_extend: _extend,
-		default: util$2
-	});
 
 	function BufferList() {
 	  this.head = null;
@@ -6035,9 +5929,9 @@
 	  this.charLength = this.charReceived ? 3 : 0;
 	}
 
-	Readable$1.ReadableState = ReadableState;
+	Readable.ReadableState = ReadableState;
 	var debug = debuglog('stream');
-	inherits$1(Readable$1, EventEmitter);
+	inherits$1(Readable, EventEmitter);
 	function prependListener(emitter, event, fn) {
 	  // Sadly this is not cacheable as some libraries bundle their own
 	  // event emitter implementation with them.
@@ -6117,8 +6011,8 @@
 	    this.encoding = options.encoding;
 	  }
 	}
-	function Readable$1(options) {
-	  if (!(this instanceof Readable$1)) return new Readable$1(options);
+	function Readable(options) {
+	  if (!(this instanceof Readable)) return new Readable(options);
 	  this._readableState = new ReadableState(options, this);
 
 	  // legacy
@@ -6131,7 +6025,7 @@
 	// This returns true if the highWaterMark has not been hit yet,
 	// similar to how Writable.write() returns true if you should
 	// write() some more.
-	Readable$1.prototype.push = function (chunk, encoding) {
+	Readable.prototype.push = function (chunk, encoding) {
 	  var state = this._readableState;
 	  if (!state.objectMode && typeof chunk === 'string') {
 	    encoding = encoding || state.defaultEncoding;
@@ -6144,11 +6038,11 @@
 	};
 
 	// Unshift should *always* be something directly out of read()
-	Readable$1.prototype.unshift = function (chunk) {
+	Readable.prototype.unshift = function (chunk) {
 	  var state = this._readableState;
 	  return readableAddChunk(this, state, chunk, '', true);
 	};
-	Readable$1.prototype.isPaused = function () {
+	Readable.prototype.isPaused = function () {
 	  return this._readableState.flowing === false;
 	};
 	function readableAddChunk(stream, state, chunk, encoding, addToFront) {
@@ -6207,7 +6101,7 @@
 	}
 
 	// backwards compatibility.
-	Readable$1.prototype.setEncoding = function (enc) {
+	Readable.prototype.setEncoding = function (enc) {
 	  this._readableState.decoder = new StringDecoder(enc);
 	  this._readableState.encoding = enc;
 	  return this;
@@ -6253,7 +6147,7 @@
 	}
 
 	// you can override either this method, or the async _read(n) below.
-	Readable$1.prototype.read = function (n) {
+	Readable.prototype.read = function (n) {
 	  debug('read', n);
 	  n = parseInt(n, 10);
 	  var state = this._readableState;
@@ -6347,7 +6241,7 @@
 	};
 	function chunkInvalid(state, chunk) {
 	  var er = null;
-	  if (!isBuffer$1(chunk) && typeof chunk !== 'string' && chunk !== null && chunk !== undefined && !state.objectMode) {
+	  if (!isBuffer(chunk) && typeof chunk !== 'string' && chunk !== null && chunk !== undefined && !state.objectMode) {
 	    er = new TypeError('Invalid non-string/buffer chunk');
 	  }
 	  return er;
@@ -6413,10 +6307,10 @@
 	// call cb(er, data) where data is <= n in length.
 	// for virtual (non-string, non-buffer) streams, "length" is somewhat
 	// arbitrary, and perhaps not very meaningful.
-	Readable$1.prototype._read = function (n) {
+	Readable.prototype._read = function (n) {
 	  this.emit('error', new Error('not implemented'));
 	};
-	Readable$1.prototype.pipe = function (dest, pipeOpts) {
+	Readable.prototype.pipe = function (dest, pipeOpts) {
 	  var src = this;
 	  var state = this._readableState;
 	  switch (state.pipesCount) {
@@ -6549,7 +6443,7 @@
 	    }
 	  };
 	}
-	Readable$1.prototype.unpipe = function (dest) {
+	Readable.prototype.unpipe = function (dest) {
 	  var state = this._readableState;
 
 	  // if we're not piping anywhere, then do nothing.
@@ -6596,7 +6490,7 @@
 
 	// set up data events if they are asked for
 	// Ensure readable listeners eventually get something
-	Readable$1.prototype.on = function (ev, fn) {
+	Readable.prototype.on = function (ev, fn) {
 	  var res = EventEmitter.prototype.on.call(this, ev, fn);
 	  if (ev === 'data') {
 	    // Start flowing on next tick if stream isn't explicitly paused
@@ -6615,7 +6509,7 @@
 	  }
 	  return res;
 	};
-	Readable$1.prototype.addListener = Readable$1.prototype.on;
+	Readable.prototype.addListener = Readable.prototype.on;
 	function nReadingNextTick(self) {
 	  debug('readable nexttick read 0');
 	  self.read(0);
@@ -6623,7 +6517,7 @@
 
 	// pause() and resume() are remnants of the legacy readable stream API
 	// If the user uses them, then switch into old mode.
-	Readable$1.prototype.resume = function () {
+	Readable.prototype.resume = function () {
 	  var state = this._readableState;
 	  if (!state.flowing) {
 	    debug('resume');
@@ -6649,7 +6543,7 @@
 	  flow(stream);
 	  if (state.flowing && !state.reading) stream.read(0);
 	}
-	Readable$1.prototype.pause = function () {
+	Readable.prototype.pause = function () {
 	  debug('call pause flowing=%j', this._readableState.flowing);
 	  if (false !== this._readableState.flowing) {
 	    debug('pause');
@@ -6667,7 +6561,7 @@
 	// wrap an old-style stream as the async data source.
 	// This is *not* part of the readable stream interface.
 	// It is an ugly unfortunate mess of history.
-	Readable$1.prototype.wrap = function (stream) {
+	Readable.prototype.wrap = function (stream) {
 	  var state = this._readableState;
 	  var paused = false;
 	  var self = this;
@@ -6723,7 +6617,7 @@
 	};
 
 	// exposed for testing purposes only.
-	Readable$1._fromList = fromList;
+	Readable._fromList = fromList;
 
 	// Pluck off n bytes from an array of buffers.
 	// Length is the combined lengths of all the buffers in the list.
@@ -7268,7 +7162,7 @@
 	  };
 	}
 
-	inherits$1(Duplex, Readable$1);
+	inherits$1(Duplex, Readable);
 	var keys = Object.keys(Writable.prototype);
 	for (var v = 0; v < keys.length; v++) {
 	  var method = keys[v];
@@ -7276,7 +7170,7 @@
 	}
 	function Duplex(options) {
 	  if (!(this instanceof Duplex)) return new Duplex(options);
-	  Readable$1.call(this, options);
+	  Readable.call(this, options);
 	  Writable.call(this, options);
 	  if (options && options.readable === false) this.readable = false;
 	  if (options && options.writable === false) this.writable = false;
@@ -7416,7 +7310,7 @@
 	};
 
 	inherits$1(Stream, EventEmitter);
-	Stream.Readable = Readable$1;
+	Stream.Readable = Readable;
 	Stream.Writable = Writable;
 	Stream.Duplex = Duplex;
 	Stream.Transform = Transform;
@@ -7498,741 +7392,6 @@
 	  return dest;
 	};
 
-	var stream$2 = /*#__PURE__*/Object.freeze({
-		__proto__: null,
-		default: Stream,
-		Readable: Readable$1,
-		Writable: Writable,
-		Duplex: Duplex,
-		Transform: Transform,
-		PassThrough: PassThrough,
-		Stream: Stream
-	});
-
-	var require$$0$1 = /*@__PURE__*/getAugmentedNamespace(stream$2);
-
-	var streambuffer = {exports: {}};
-
-	var constants$2 = {
-	  DEFAULT_INITIAL_SIZE: 8 * 1024,
-	  DEFAULT_INCREMENT_AMOUNT: 8 * 1024,
-	  DEFAULT_FREQUENCY: 1,
-	  DEFAULT_CHUNK_SIZE: 1024
-	};
-
-	var readable_streambuffer = {exports: {}};
-
-	var require$$0 = /*@__PURE__*/getAugmentedNamespace(util$3);
-
-	var stream$1 = require$$0$1;
-	var constants$1 = constants$2;
-	var util$1 = require$$0;
-	var ReadableStreamBuffer = readable_streambuffer.exports = function (opts) {
-	  var that = this;
-	  opts = opts || {};
-	  stream$1.Readable.call(this, opts);
-	  this.stopped = false;
-	  var frequency = opts.hasOwnProperty('frequency') ? opts.frequency : constants$1.DEFAULT_FREQUENCY;
-	  var chunkSize = opts.chunkSize || constants$1.DEFAULT_CHUNK_SIZE;
-	  var initialSize = opts.initialSize || constants$1.DEFAULT_INITIAL_SIZE;
-	  var incrementAmount = opts.incrementAmount || constants$1.DEFAULT_INCREMENT_AMOUNT;
-	  var size = 0;
-	  var buffer = new Buffer(initialSize);
-	  var allowPush = false;
-	  var sendData = function sendData() {
-	    var amount = Math.min(chunkSize, size);
-	    var sendMore = false;
-	    if (amount > 0) {
-	      var chunk = null;
-	      chunk = new Buffer(amount);
-	      buffer.copy(chunk, 0, 0, amount);
-	      sendMore = that.push(chunk) !== false;
-	      allowPush = sendMore;
-	      buffer.copy(buffer, 0, amount, size);
-	      size -= amount;
-	    }
-	    if (size === 0 && that.stopped) {
-	      that.push(null);
-	    }
-	    if (sendMore) {
-	      sendData.timeout = setTimeout(sendData, frequency);
-	    } else {
-	      sendData.timeout = null;
-	    }
-	  };
-	  this.stop = function () {
-	    if (this.stopped) {
-	      throw new Error('stop() called on already stopped ReadableStreamBuffer');
-	    }
-	    this.stopped = true;
-	    if (size === 0) {
-	      this.push(null);
-	    }
-	  };
-	  this.size = function () {
-	    return size;
-	  };
-	  this.maxSize = function () {
-	    return buffer.length;
-	  };
-	  var increaseBufferIfNecessary = function increaseBufferIfNecessary(incomingDataSize) {
-	    if (buffer.length - size < incomingDataSize) {
-	      var factor = Math.ceil((incomingDataSize - (buffer.length - size)) / incrementAmount);
-	      var newBuffer = new Buffer(buffer.length + incrementAmount * factor);
-	      buffer.copy(newBuffer, 0, 0, size);
-	      buffer = newBuffer;
-	    }
-	  };
-	  var kickSendDataTask = function kickSendDataTask() {
-	    if (!sendData.timeout && allowPush) {
-	      sendData.timeout = setTimeout(sendData, frequency);
-	    }
-	  };
-	  this.put = function (data, encoding) {
-	    if (that.stopped) {
-	      throw new Error('Tried to write data to a stopped ReadableStreamBuffer');
-	    }
-	    if (isBuffer$1(data)) {
-	      increaseBufferIfNecessary(data.length);
-	      data.copy(buffer, size, 0);
-	      size += data.length;
-	    } else {
-	      data = data + '';
-	      var dataSizeInBytes = Buffer.byteLength(data);
-	      increaseBufferIfNecessary(dataSizeInBytes);
-	      buffer.write(data, size, encoding || 'utf8');
-	      size += dataSizeInBytes;
-	    }
-	    kickSendDataTask();
-	  };
-	  this._read = function () {
-	    allowPush = true;
-	    kickSendDataTask();
-	  };
-	};
-	util$1.inherits(ReadableStreamBuffer, stream$1.Readable);
-
-	var writable_streambuffer = {exports: {}};
-
-	var util = require$$0;
-	var stream = require$$0$1;
-	var constants = constants$2;
-	var WritableStreamBuffer$1 = writable_streambuffer.exports = function (opts) {
-	  opts = opts || {};
-	  opts.decodeStrings = true;
-	  stream.Writable.call(this, opts);
-	  var initialSize = opts.initialSize || constants.DEFAULT_INITIAL_SIZE;
-	  var incrementAmount = opts.incrementAmount || constants.DEFAULT_INCREMENT_AMOUNT;
-	  var buffer = new Buffer(initialSize);
-	  var size = 0;
-	  this.size = function () {
-	    return size;
-	  };
-	  this.maxSize = function () {
-	    return buffer.length;
-	  };
-	  this.getContents = function (length) {
-	    if (!size) return false;
-	    var data = new Buffer(Math.min(length || size, size));
-	    buffer.copy(data, 0, 0, data.length);
-	    if (data.length < size) buffer.copy(buffer, 0, data.length);
-	    size -= data.length;
-	    return data;
-	  };
-	  this.getContentsAsString = function (encoding, length) {
-	    if (!size) return false;
-	    var data = buffer.toString(encoding || 'utf8', 0, Math.min(length || size, size));
-	    var dataLength = Buffer.byteLength(data);
-	    if (dataLength < size) buffer.copy(buffer, 0, dataLength);
-	    size -= dataLength;
-	    return data;
-	  };
-	  var increaseBufferIfNecessary = function increaseBufferIfNecessary(incomingDataSize) {
-	    if (buffer.length - size < incomingDataSize) {
-	      var factor = Math.ceil((incomingDataSize - (buffer.length - size)) / incrementAmount);
-	      var newBuffer = new Buffer(buffer.length + incrementAmount * factor);
-	      buffer.copy(newBuffer, 0, 0, size);
-	      buffer = newBuffer;
-	    }
-	  };
-	  this._write = function (chunk, encoding, callback) {
-	    increaseBufferIfNecessary(chunk.length);
-	    chunk.copy(buffer, size, 0);
-	    size += chunk.length;
-	    callback();
-	  };
-	};
-	util.inherits(WritableStreamBuffer$1, stream.Writable);
-
-	(function (module) {
-
-	  module.exports = constants$2;
-	  module.exports.ReadableStreamBuffer = readable_streambuffer.exports;
-	  module.exports.WritableStreamBuffer = writable_streambuffer.exports;
-	})(streambuffer);
-
-	(function (global, undefined$1) {
-
-	  if (global.setImmediate) {
-	    return;
-	  }
-	  var nextHandle = 1; // Spec says greater than zero
-	  var tasksByHandle = {};
-	  var currentlyRunningATask = false;
-	  var doc = global.document;
-	  var registerImmediate;
-	  function setImmediate(callback) {
-	    // Callback can either be a function or a string
-	    if (typeof callback !== "function") {
-	      callback = new Function("" + callback);
-	    }
-	    // Copy function arguments
-	    var args = new Array(arguments.length - 1);
-	    for (var i = 0; i < args.length; i++) {
-	      args[i] = arguments[i + 1];
-	    }
-	    // Store and register the task
-	    var task = {
-	      callback: callback,
-	      args: args
-	    };
-	    tasksByHandle[nextHandle] = task;
-	    registerImmediate(nextHandle);
-	    return nextHandle++;
-	  }
-	  function clearImmediate(handle) {
-	    delete tasksByHandle[handle];
-	  }
-	  function run(task) {
-	    var callback = task.callback;
-	    var args = task.args;
-	    switch (args.length) {
-	      case 0:
-	        callback();
-	        break;
-	      case 1:
-	        callback(args[0]);
-	        break;
-	      case 2:
-	        callback(args[0], args[1]);
-	        break;
-	      case 3:
-	        callback(args[0], args[1], args[2]);
-	        break;
-	      default:
-	        callback.apply(undefined$1, args);
-	        break;
-	    }
-	  }
-	  function runIfPresent(handle) {
-	    // From the spec: "Wait until any invocations of this algorithm started before this one have completed."
-	    // So if we're currently running a task, we'll need to delay this invocation.
-	    if (currentlyRunningATask) {
-	      // Delay by doing a setTimeout. setImmediate was tried instead, but in Firefox 7 it generated a
-	      // "too much recursion" error.
-	      setTimeout(runIfPresent, 0, handle);
-	    } else {
-	      var task = tasksByHandle[handle];
-	      if (task) {
-	        currentlyRunningATask = true;
-	        try {
-	          run(task);
-	        } finally {
-	          clearImmediate(handle);
-	          currentlyRunningATask = false;
-	        }
-	      }
-	    }
-	  }
-	  function installNextTickImplementation() {
-	    registerImmediate = function registerImmediate(handle) {
-	      nextTick(function () {
-	        runIfPresent(handle);
-	      });
-	    };
-	  }
-	  function canUsePostMessage() {
-	    // The test against `importScripts` prevents this implementation from being installed inside a web worker,
-	    // where `global.postMessage` means something completely different and can't be used for this purpose.
-	    if (global.postMessage && !global.importScripts) {
-	      var postMessageIsAsynchronous = true;
-	      var oldOnMessage = global.onmessage;
-	      global.onmessage = function () {
-	        postMessageIsAsynchronous = false;
-	      };
-	      global.postMessage("", "*");
-	      global.onmessage = oldOnMessage;
-	      return postMessageIsAsynchronous;
-	    }
-	  }
-	  function installPostMessageImplementation() {
-	    // Installs an event handler on `global` for the `message` event: see
-	    // * https://developer.mozilla.org/en/DOM/window.postMessage
-	    // * http://www.whatwg.org/specs/web-apps/current-work/multipage/comms.html#crossDocumentMessages
-
-	    var messagePrefix = "setImmediate$" + Math.random() + "$";
-	    var onGlobalMessage = function onGlobalMessage(event) {
-	      if (event.source === global && typeof event.data === "string" && event.data.indexOf(messagePrefix) === 0) {
-	        runIfPresent(+event.data.slice(messagePrefix.length));
-	      }
-	    };
-	    if (global.addEventListener) {
-	      global.addEventListener("message", onGlobalMessage, false);
-	    } else {
-	      global.attachEvent("onmessage", onGlobalMessage);
-	    }
-	    registerImmediate = function registerImmediate(handle) {
-	      global.postMessage(messagePrefix + handle, "*");
-	    };
-	  }
-	  function installMessageChannelImplementation() {
-	    var channel = new MessageChannel();
-	    channel.port1.onmessage = function (event) {
-	      var handle = event.data;
-	      runIfPresent(handle);
-	    };
-	    registerImmediate = function registerImmediate(handle) {
-	      channel.port2.postMessage(handle);
-	    };
-	  }
-	  function installReadyStateChangeImplementation() {
-	    var html = doc.documentElement;
-	    registerImmediate = function registerImmediate(handle) {
-	      // Create a <script> element; its readystatechange event will be fired asynchronously once it is inserted
-	      // into the document. Do so, thus queuing up the task. Remember to clean up once it's been called.
-	      var script = doc.createElement("script");
-	      script.onreadystatechange = function () {
-	        runIfPresent(handle);
-	        script.onreadystatechange = null;
-	        html.removeChild(script);
-	        script = null;
-	      };
-	      html.appendChild(script);
-	    };
-	  }
-	  function installSetTimeoutImplementation() {
-	    registerImmediate = function registerImmediate(handle) {
-	      setTimeout(runIfPresent, 0, handle);
-	    };
-	  }
-
-	  // If supported, we should attach to the prototype of global, since that is where setTimeout et al. live.
-	  var attachTo = Object.getPrototypeOf && Object.getPrototypeOf(global);
-	  attachTo = attachTo && attachTo.setTimeout ? attachTo : global;
-
-	  // Don't get fooled by e.g. browserify environments.
-	  if ({}.toString.call(global.process) === "[object process]") {
-	    // For Node.js before 0.9
-	    installNextTickImplementation();
-	  } else if (canUsePostMessage()) {
-	    // For non-IE10 modern browsers
-	    installPostMessageImplementation();
-	  } else if (global.MessageChannel) {
-	    // For web workers, where supported
-	    installMessageChannelImplementation();
-	  } else if (doc && "onreadystatechange" in doc.createElement("script")) {
-	    // For IE 6–8
-	    installReadyStateChangeImplementation();
-	  } else {
-	    // For older browsers
-	    installSetTimeoutImplementation();
-	  }
-	  attachTo.setImmediate = setImmediate;
-	  attachTo.clearImmediate = clearImmediate;
-	})(typeof self === "undefined" ? typeof commonjsGlobal === "undefined" ? commonjsGlobal : commonjsGlobal : self);
-
-	var Readable = require$$0$1.Readable;
-	var WritableStreamBuffer = streambuffer.exports.WritableStreamBuffer;
-	var OPL3$1 = opl3$1;
-	var DRO$1 = dro;
-	var IMF$1 = imf;
-	var LAA$1 = laa;
-	//var MUS = require('../format/mus');
-	var RAW$1 = raw;
-	var RAD$1 = rad;
-	var currentScriptSrc$1 = null;
-	try {
-	  currentScriptSrc$1 = document.currentScript.src;
-	} catch (err) {}
-	var _options$2 = /*#__PURE__*/new WeakMap();
-	var _format$1 = /*#__PURE__*/new WeakMap();
-	var _context = /*#__PURE__*/new WeakMap();
-	var _gain = /*#__PURE__*/new WeakMap();
-	var _isPlayInit = /*#__PURE__*/new WeakMap();
-	var _queuePos = /*#__PURE__*/new WeakMap();
-	var _bufferPerMs = /*#__PURE__*/new WeakMap();
-	var _queue = /*#__PURE__*/new WeakMap();
-	var _backupQueue = /*#__PURE__*/new WeakMap();
-	var _worker = /*#__PURE__*/new WeakMap();
-	var _aborted = /*#__PURE__*/new WeakMap();
-	var _sendPostMessage = /*#__PURE__*/new WeakMap();
-	var _bufferWriter = /*#__PURE__*/new WeakMap();
-	var _callback = /*#__PURE__*/new WeakMap();
-	var Player = /*#__PURE__*/function (_Readable) {
-	  _inherits(Player, _Readable);
-	  var _super = _createSuper(Player);
-	  function Player(format, options) {
-	    var _this;
-	    _classCallCheck(this, Player);
-	    _this = _super.call(this);
-	    _classPrivateFieldInitSpec(_assertThisInitialized(_this), _options$2, {
-	      writable: true,
-	      value: {}
-	    });
-	    _classPrivateFieldInitSpec(_assertThisInitialized(_this), _format$1, {
-	      writable: true,
-	      value: null
-	    });
-	    _classPrivateFieldInitSpec(_assertThisInitialized(_this), _context, {
-	      writable: true,
-	      value: null
-	    });
-	    _classPrivateFieldInitSpec(_assertThisInitialized(_this), _gain, {
-	      writable: true,
-	      value: null
-	    });
-	    _classPrivateFieldInitSpec(_assertThisInitialized(_this), _isPlayInit, {
-	      writable: true,
-	      value: false
-	    });
-	    _classPrivateFieldInitSpec(_assertThisInitialized(_this), _queuePos, {
-	      writable: true,
-	      value: 0
-	    });
-	    _classPrivateFieldInitSpec(_assertThisInitialized(_this), _bufferPerMs, {
-	      writable: true,
-	      value: 0
-	    });
-	    _classPrivateFieldInitSpec(_assertThisInitialized(_this), _queue, {
-	      writable: true,
-	      value: []
-	    });
-	    _classPrivateFieldInitSpec(_assertThisInitialized(_this), _backupQueue, {
-	      writable: true,
-	      value: null
-	    });
-	    _classPrivateFieldInitSpec(_assertThisInitialized(_this), _worker, {
-	      writable: true,
-	      value: null
-	    });
-	    _classPrivateFieldInitSpec(_assertThisInitialized(_this), _aborted, {
-	      writable: true,
-	      value: false
-	    });
-	    _classPrivateFieldInitSpec(_assertThisInitialized(_this), _sendPostMessage, {
-	      writable: true,
-	      value: false
-	    });
-	    _classPrivateFieldInitSpec(_assertThisInitialized(_this), _bufferWriter, {
-	      writable: true,
-	      value: null
-	    });
-	    _classPrivateFieldInitSpec(_assertThisInitialized(_this), _callback, {
-	      writable: true,
-	      value: null
-	    });
-	    _classPrivateFieldSet(_assertThisInitialized(_this), _options$2, options || {});
-	    _classPrivateFieldGet(_assertThisInitialized(_this), _options$2).prebuffer = _classPrivateFieldGet(_assertThisInitialized(_this), _options$2).prebuffer || 200;
-	    _classPrivateFieldGet(_assertThisInitialized(_this), _options$2).bufferSize = _classPrivateFieldGet(_assertThisInitialized(_this), _options$2).bufferSize || 128;
-	    _classPrivateFieldSet(_assertThisInitialized(_this), _format$1, format);
-
-	    // Forward events from Worker to main thread if needed
-	    _this.on('end', function () {
-	      if (_classPrivateFieldGet(_assertThisInitialized(_this), _bufferWriter)) {
-	        var pcmBuffer = _classPrivateFieldGet(_assertThisInitialized(_this), _bufferWriter).getContents().buffer;
-	        if (typeof _classPrivateFieldGet(_assertThisInitialized(_this), _callback) == 'function') _classPrivateFieldGet(_assertThisInitialized(_this), _callback).call(_assertThisInitialized(_this), null, pcmBuffer);
-	        _classPrivateFieldGet(_assertThisInitialized(_this), _options$2).prebuffer = -1;
-	      }
-	      if (_classPrivateFieldGet(_assertThisInitialized(_this), _sendPostMessage)) postMessage({
-	        cmd: 'end'
-	      });
-	    });
-	    _this.on('progress', function (value) {
-	      if (_classPrivateFieldGet(_assertThisInitialized(_this), _sendPostMessage)) postMessage({
-	        cmd: 'progress',
-	        value: value
-	      });
-	    });
-	    _this.on('error', function (err) {
-	      throw err;
-	    });
-	    _this.on('midi', function (midi) {
-	      if (_classPrivateFieldGet(_assertThisInitialized(_this), _sendPostMessage)) postMessage({
-	        cmd: 'midi',
-	        value: midi
-	      }, [midi]);
-	    });
-	    _this.on('data', function (chunk) {
-	      // if in main thread
-	      if (typeof AudioContext != 'undefined') {
-	        if (_classPrivateFieldGet(_assertThisInitialized(_this), _backupQueue)) _classPrivateFieldGet(_assertThisInitialized(_this), _backupQueue).push(chunk);else _classPrivateFieldGet(_assertThisInitialized(_this), _queue).push(chunk);
-	      }
-	      if (_classPrivateFieldGet(_assertThisInitialized(_this), _sendPostMessage)) postMessage({
-	        cmd: 'data',
-	        value: chunk.buffer
-	      }, [chunk.buffer]);
-	    });
-	    _this.on('abort', _this.pause);
-	    return _this;
-	  }
-	  _createClass(Player, [{
-	    key: "position",
-	    get: /* GainNode */
-
-	    // Main thread: do nothing
-	    // Worker: forward messages to main thread
-
-	    function get() {
-	      return Math.floor(_classPrivateFieldGet(this, _queuePos) / _classPrivateFieldGet(this, _bufferPerMs));
-	    }
-	  }, {
-	    key: "length",
-	    get: function get() {
-	      return Math.floor((_classPrivateFieldGet(this, _backupQueue) || _classPrivateFieldGet(this, _queue)).length / _classPrivateFieldGet(this, _bufferPerMs));
-	    }
-	  }, {
-	    key: "volume",
-	    get: function get() {
-	      return _classPrivateFieldGet(this, _gain).gain.value;
-	    },
-	    set: function set(value) {
-	      _classPrivateFieldGet(this, _gain).gain.value = value;
-	    }
-	  }, {
-	    key: "detectFormat",
-	    value: function detectFormat(buffer /*: ArrayBuffer | Buffer*/) {
-	      var header = function header(offset, length) {
-	        return String.fromCharCode.apply(null, new Uint8Array(buffer.slice(offset, length)));
-	      };
-
-	      // TODO: move testing signatures into driver file
-	      if (header(0, 3) == 'ADL') return LAA$1;
-	      if (header(0, 8) == 'RAWADATA') return RAW$1;
-	      if (header(0, 8) == 'DBRAWOPL') return DRO$1;
-	      //if (header(0, 4) == 'MUS\x1a') return MUS;
-	      if (header(0, 16) == 'RAD by REALiTY!!') return RAD$1;
-	      // IMF has no ID :(
-
-	      return IMF$1;
-	    }
-	  }, {
-	    key: "_read",
-	    value: function _read() {}
-	  }, {
-	    key: "pause",
-	    value: function pause() {
-	      if (_classPrivateFieldGet(this, _context)) {
-	        _classPrivateFieldGet(this, _context).suspend();
-	      }
-
-	      //this.#backupQueue = this.#queue;
-	      //this.#queue = [];
-	    }
-	  }, {
-	    key: "resume",
-	    value: function resume() {
-	      if (_classPrivateFieldGet(this, _context)) {
-	        _classPrivateFieldGet(this, _context).resume();
-	      }
-	    }
-	  }, {
-	    key: "seek",
-	    value: function seek(ms) {
-	      _classPrivateFieldSet(this, _queuePos, Math.floor(ms * _classPrivateFieldGet(this, _bufferPerMs)));
-	    }
-	  }, {
-	    key: "stop",
-	    value: function stop() {
-	      if (_classPrivateFieldGet(this, _context)) {
-	        _classPrivateFieldGet(this, _context).close();
-	        _classPrivateFieldSet(this, _context, null);
-	        _classPrivateFieldSet(this, _isPlayInit, false);
-	      }
-	    }
-	  }, {
-	    key: "abort",
-	    value: function abort() {
-	      if (_classPrivateFieldGet(this, _worker)) _classPrivateFieldGet(this, _worker).terminate();
-	      _classPrivateFieldSet(this, _aborted, true);
-	      this.emit('abort');
-	    }
-	  }, {
-	    key: "play",
-	    value:
-	    // Note: omitted inside Worker because AudioContext is non-existent there
-	    // Runs in main thread only
-	    function play(buffer) {
-	      var _this2 = this;
-	      // works on main thread with AudioContext available
-	      if (typeof AudioContext != 'undefined') {
-	        if (_classPrivateFieldGet(this, _isPlayInit)) {
-	          this.stop();
-	        }
-	        _classPrivateFieldSet(this, _context, new AudioContext());
-	        var source = _classPrivateFieldGet(this, _context).createBufferSource();
-	        var processor = _classPrivateFieldGet(this, _context).createScriptProcessor(2048, 0, 2);
-	        _classPrivateFieldSet(this, _gain, _classPrivateFieldGet(this, _context).createGain());
-	        _classPrivateFieldGet(this, _gain).gain.value = _classPrivateFieldGet(this, _options$2).volume || 1;
-	        _classPrivateFieldSet(this, _queue, []);
-	        var bufferLeft, bufferRight, silence;
-	        var audioQueueFn = function audioQueueFn(e) {
-	          var outputBuffer = e.outputBuffer;
-	          if (_this2.length >= _classPrivateFieldGet(_this2, _options$2).prebuffer) {
-	            for (var i = 0; i < processor.bufferSize / _classPrivateFieldGet(_this2, _options$2).bufferSize; i++) {
-	              var tmp = _classPrivateFieldGet(_this2, _queue)[_classPrivateFieldGet(_this2, _queuePos)];
-	              if (tmp) {
-	                var _this$queuePos;
-	                _classPrivateFieldSet(_this2, _queuePos, (_this$queuePos = _classPrivateFieldGet(_this2, _queuePos), _this$queuePos++, _this$queuePos));
-	                _this2.emit('position', _this2.position);
-	                var dv = new DataView(tmp.buffer || tmp);
-	                for (var j = 0, offset = 0; j < _classPrivateFieldGet(_this2, _options$2).bufferSize; j++, offset += 8) {
-	                  bufferLeft[j] = dv.getFloat32(offset, true);
-	                  bufferRight[j] = dv.getFloat32(offset + 4, true);
-	                }
-	              } else {
-	                bufferLeft.set(silence);
-	                bufferRight.set(silence);
-	              }
-	              outputBuffer.copyToChannel(bufferLeft, 0, i * _classPrivateFieldGet(_this2, _options$2).bufferSize);
-	              outputBuffer.copyToChannel(bufferRight, 1, i * _classPrivateFieldGet(_this2, _options$2).bufferSize);
-	            }
-	          }
-	        };
-	        _classPrivateFieldSet(this, _backupQueue, null);
-	        _classPrivateFieldSet(this, _isPlayInit, false);
-	        if (!_classPrivateFieldGet(this, _isPlayInit)) {
-	          _classPrivateFieldGet(this, _options$2).bufferSize = _classPrivateFieldGet(this, _options$2).bufferSize || 128;
-	          _classPrivateFieldGet(this, _options$2).sampleRate = _classPrivateFieldGet(this, _context).sampleRate;
-	          _classPrivateFieldGet(this, _options$2).bitDepth = 32; // other values don't work at all
-
-	          bufferLeft = new Float32Array(_classPrivateFieldGet(this, _options$2).bufferSize);
-	          bufferRight = new Float32Array(_classPrivateFieldGet(this, _options$2).bufferSize);
-	          silence = new Float32Array(_classPrivateFieldGet(this, _options$2).bufferSize);
-	          _classPrivateFieldSet(this, _queuePos, 0);
-	          _classPrivateFieldSet(this, _bufferPerMs, _classPrivateFieldGet(this, _options$2).sampleRate / 1000 / _classPrivateFieldGet(this, _options$2).bufferSize);
-	          this.load(buffer);
-	          processor.onaudioprocess = audioQueueFn;
-	          source.connect(processor);
-	          processor.connect(_classPrivateFieldGet(this, _gain));
-	          _classPrivateFieldGet(this, _gain).connect(_classPrivateFieldGet(this, _context).destination);
-	          source.start();
-	          _classPrivateFieldSet(this, _isPlayInit, true);
-	        }
-	        if (_classPrivateFieldGet(this, _backupQueue)) {
-	          _classPrivateFieldSet(this, _queue, _classPrivateFieldGet(this, _backupQueue));
-	          _classPrivateFieldSet(this, _backupQueue, null);
-	        }
-	      }
-	    }
-	  }, {
-	    key: "load",
-	    value: function load(buffer) {
-	      var callback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-	      var sendPostMessage = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-	      _classPrivateFieldSet(this, _callback, callback);
-	      if (!_classPrivateFieldGet(this, _options$2).disableWorker && browser$1 && typeof window != 'undefined' && 'Worker' in window) {
-	        this._load_worker(buffer, callback, sendPostMessage);
-	      } else {
-	        this._load_internal(buffer, callback, sendPostMessage);
-	      }
-	    }
-
-	    // Runs either on main thread or inside Worker
-	    // Process the whole music file and generate buffer
-	  }, {
-	    key: "_load_internal",
-	    value: function _load_internal(buffer) {
-	      var _this3 = this;
-	      var callback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-	      var sendPostMessage = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-	      try {
-	        _classPrivateFieldSet(this, _bufferWriter, new WritableStreamBuffer({
-	          initialSize: 1024 * 1024,
-	          incrementAmount: 512 * 1024
-	        }));
-	        this.pipe(_classPrivateFieldGet(this, _bufferWriter));
-	        if (buffer instanceof ArrayBuffer) buffer = new Buffer.from(buffer);
-	        _classPrivateFieldSet(this, _sendPostMessage, sendPostMessage);
-	        _classPrivateFieldSet(this, _format$1, _classPrivateFieldGet(this, _format$1) || this.detectFormat(buffer));
-	        if (!_classPrivateFieldGet(this, _format$1)) throw 'File format not detected';
-
-	        // Make player global?
-	        var player = new (_classPrivateFieldGet(this, _format$1))(new OPL3$1(), _classPrivateFieldGet(this, _options$2));
-	        player.load(buffer);
-	        _classPrivateFieldSet(this, _aborted, false);
-	        var samplesBuffer = new Float32Array(_classPrivateFieldGet(this, _options$2).bufferSize * 2);
-	        var sampleRate = 49700 * ((_classPrivateFieldGet(this, _options$2).sampleRate || 49700) / 49700);
-	        var fn = function fn() {
-	          if (_classPrivateFieldGet(_this3, _aborted)) return;
-	          while (player.update()) {
-	            if (_classPrivateFieldGet(_this3, _aborted)) return;
-	            _this3.emit('progress', Math.floor(player.position / player.data.byteLength * 1000) / 10);
-	            var chunkSize = 2 * (sampleRate * player.refresh() | 0);
-	            while (chunkSize > 0) {
-	              var samplesSize = Math.min(_classPrivateFieldGet(_this3, _options$2).bufferSize * 2, chunkSize);
-	              chunkSize -= samplesSize;
-	              player.opl.read(samplesBuffer);
-
-	              // .slice(0) creates a full copy of an array which is invalidated after Buffer.from()
-	              _this3.emit('data', new Buffer.from(samplesBuffer.slice(0).buffer));
-	            }
-	            return setImmediate(fn);
-	          }
-	          _this3.emit('progress', 100);
-	          if (player.midiBuffer) _this3.emit('midi', new Buffer.from(player.midiBuffer, 'binary').buffer);
-	          _this3.emit('end');
-	        };
-	        fn();
-	      } catch (err) {
-	        this.emit('error', err);
-	        if (typeof callback == 'function') callback(err, null);
-	      }
-	    }
-	  }, {
-	    key: "_load_worker",
-	    value: function _load_worker(buffer) {
-	      var _this4 = this;
-	      var callback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-	      var sendPostMessage = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-	      _classPrivateFieldSet(this, _sendPostMessage, sendPostMessage);
-	      _classPrivateFieldSet(this, _format$1, _classPrivateFieldGet(this, _format$1) || this.detectFormat(buffer));
-	      if (!_classPrivateFieldGet(this, _format$1)) throw 'File format not detected';
-	      var workerSrc = 'importScripts("' + currentScriptSrc$1 + '");\n' + 'onmessage = (msg) => {\n' + '   var player = new OPL3.Player(null, msg.data.options);\n' + '   player.load(msg.data.buffer, ' + (typeof callback == 'function' ? '(err, buffer) => {\n' + '       if (err) throw err;\n' + '       postMessage({ cmd: "callback", value: buffer }, [buffer]);\n' + '   }' : 'null') + ', true);\n' + '};';
-	      var blob = new Blob([workerSrc], {
-	        type: 'application/javascript'
-	      });
-
-	      // Or don't recreate worker?
-	      if (_classPrivateFieldGet(this, _worker)) {
-	        _classPrivateFieldGet(this, _worker).terminate();
-	      }
-	      _classPrivateFieldSet(this, _worker, new Worker(URL.createObjectURL(blob)));
-	      _classPrivateFieldGet(this, _worker).onmessage = function (msg) {
-	        _this4.emit(msg.data.cmd, msg.data.value);
-	        if (msg.data.cmd == 'callback') {
-	          if (typeof callback == 'function') callback(null, msg.data.value);
-	          _classPrivateFieldGet(_this4, _worker).terminate();
-	        }
-	      };
-	      _classPrivateFieldGet(this, _worker).onerror = function (err) {
-	        _this4.emit('error', err);
-	        if (typeof callback == 'function') callback(err, null);
-	      };
-
-	      // Start worker ;)
-	      var options = _objectSpread2(_objectSpread2({}, _classPrivateFieldGet(this, _options$2)), {}, {
-	        prebuffer: Infinity
-	      });
-	      _classPrivateFieldGet(this, _worker).postMessage({
-	        buffer: buffer,
-	        options: options
-	      }, [buffer]);
-	    }
-	  }]);
-	  return Player;
-	}(Readable);
-	var player = Player;
-
 	var currentScriptSrc = null;
 	try {
 	  currentScriptSrc = document.currentScript.src;
@@ -8241,6 +7400,8 @@
 	var MainPlayer = /*#__PURE__*/function (_Readable) {
 	  _inherits(MainPlayer, _Readable);
 	  var _super = _createSuper(MainPlayer);
+	  // source of opl3.js
+
 	  function MainPlayer(format, options) {
 	    var _this;
 	    _classCallCheck(this, MainPlayer);
@@ -8249,6 +7410,7 @@
 	      writable: true,
 	      value: {}
 	    });
+	    _defineProperty(_assertThisInitialized(_this), "opl3module", null);
 	    _defineProperty(_assertThisInitialized(_this), "audioContext", null);
 	    _defineProperty(_assertThisInitialized(_this), "worklet", null);
 	    _classPrivateFieldSet(_assertThisInitialized(_this), _options$1, options || {});
@@ -8264,34 +7426,30 @@
 	          while (1) {
 	            switch (_context2.prev = _context2.next) {
 	              case 0:
-	                fetch(currentScriptSrc).then(function (script) {
+	                _context2.next = 2;
+	                return fetch(currentScriptSrc).then(function (script) {
 	                  return script.text();
 	                }).then( /*#__PURE__*/function () {
 	                  var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(text) {
-	                    var gainNode;
 	                    return _regeneratorRuntime().wrap(function _callee$(_context) {
 	                      while (1) {
 	                        switch (_context.prev = _context.next) {
 	                          case 0:
-	                            _this2.audioContext = new AudioContext();
-	                            _context.next = 3;
-	                            return _this2.audioContext.audioWorklet.addModule("test-processor.js");
-	                          case 3:
-	                            _this2.worklet = new AudioWorkletNode(_this2.audioContext, "test-generator", {
-	                              numberOfOutputs: 1,
-	                              outputChannelCount: [2]
-	                            });
-	                            gainNode = _this2.audioContext.createGain();
-	                            gainNode.gain.value = 4;
-	                            gainNode.connect(_this2.audioContext.destination);
+	                            _this2.opl3module = text;
 
-	                            // Pass the whole OPL3 module into the worklet
-	                            _this2.worklet.port.postMessage({
-	                              cmd: 'OPL3',
-	                              value: text
+	                            /*this.audioContext = new AudioContext();
+	                            await this.audioContext.audioWorklet.addModule("test-processor.js");
+	                              this.worklet = new AudioWorkletNode(this.audioContext, "test-generator", {
+	                                numberOfOutputs: 1,
+	                                outputChannelCount : [2]
 	                            });
-	                            _this2.worklet.connect(gainNode);
-	                          case 9:
+	                              var gainNode = this.audioContext.createGain();
+	                            gainNode.gain.value = 4;
+	                            gainNode.connect(this.audioContext.destination);
+	                              // Pass the whole OPL3 module into the worklet
+	                            this.worklet.port.postMessage({ cmd: 'OPL3', value: this.opl3module });
+	                            this.worklet.connect(gainNode);*/
+	                          case 1:
 	                          case "end":
 	                            return _context.stop();
 	                        }
@@ -8302,7 +7460,7 @@
 	                    return _ref.apply(this, arguments);
 	                  };
 	                }());
-	              case 1:
+	              case 2:
 	              case "end":
 	                return _context2.stop();
 	            }
@@ -8315,27 +7473,90 @@
 	      return init;
 	    }()
 	  }, {
+	    key: "initContext",
+	    value: function () {
+	      var _initContext = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
+	        var gainNode;
+	        return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+	          while (1) {
+	            switch (_context3.prev = _context3.next) {
+	              case 0:
+	                this.audioContext = new AudioContext();
+	                _context3.next = 3;
+	                return this.audioContext.audioWorklet.addModule("test-processor.js");
+	              case 3:
+	                this.worklet = new AudioWorkletNode(this.audioContext, "test-generator", {
+	                  numberOfOutputs: 1,
+	                  outputChannelCount: [2]
+	                });
+	                gainNode = this.audioContext.createGain();
+	                gainNode.gain.value = 4;
+	                gainNode.connect(this.audioContext.destination);
+
+	                // Pass the whole OPL3 module into the worklet
+	                this.worklet.port.postMessage({
+	                  cmd: 'OPL3',
+	                  value: this.opl3module
+	                });
+	                this.worklet.connect(gainNode);
+	              case 9:
+	              case "end":
+	                return _context3.stop();
+	            }
+	          }
+	        }, _callee3, this);
+	      }));
+	      function initContext() {
+	        return _initContext.apply(this, arguments);
+	      }
+	      return initContext;
+	    }()
+	  }, {
 	    key: "play",
-	    value: function play(buffer) {}
+	    value: function play(buffer) {
+	      //this.audioContext.resume();
+	    }
 	  }, {
 	    key: "load",
-	    value: function load(buffer) {
-	      // ArrayBuffer
-	      this.worklet && this.worklet.port.postMessage({
-	        cmd: 'load',
-	        value: buffer
-	      });
-	    }
+	    value: function () {
+	      var _load = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(buffer) {
+	        return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+	          while (1) {
+	            switch (_context4.prev = _context4.next) {
+	              case 0:
+	                if (!(!this.audioContext || !this.worklet)) {
+	                  _context4.next = 3;
+	                  break;
+	                }
+	                _context4.next = 3;
+	                return this.initContext();
+	              case 3:
+	                this.worklet && this.worklet.port.postMessage({
+	                  cmd: 'load',
+	                  value: buffer
+	                });
+	              case 4:
+	              case "end":
+	                return _context4.stop();
+	            }
+	          }
+	        }, _callee4, this);
+	      }));
+	      function load(_x2) {
+	        return _load.apply(this, arguments);
+	      }
+	      return load;
+	    }()
 	  }]);
 	  return MainPlayer;
-	}(Readable$1);
+	}(Readable);
 
 	var mainPlayer = /*#__PURE__*/Object.freeze({
 		__proto__: null,
 		default: MainPlayer
 	});
 
-	var require$$7 = /*@__PURE__*/getAugmentedNamespace(mainPlayer);
+	var require$$6 = /*@__PURE__*/getAugmentedNamespace(mainPlayer);
 
 	// To be executed inside AudioWorklet in AudioWorkletGlobalScope
 
@@ -8470,8 +7691,8 @@
 	  // WAV: require('wav-arraybuffer'),
 	  // ConvertTo32Bit: require('pcm-bitdepth-converter').From16To32Bit,
 	  // Normalizer: require('pcm-normalizer'),
-	  Player: player,
-	  MainPlayer: require$$7,
+	  //Player: require('./lib/player'),
+	  MainPlayer: require$$6,
 	  WorkletPlayer: workletPlayer
 	};
 
