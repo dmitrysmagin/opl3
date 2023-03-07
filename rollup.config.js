@@ -6,7 +6,7 @@ const globals = require('rollup-plugin-node-globals');
 const builtins = require('rollup-plugin-node-builtins');
 
 module.exports = {
-    input: 'index.js',
+    input: 'lib/index.js',
     output: {
         file: 'dist/opl3.js',
         name: 'OPL3',

@@ -2,14 +2,14 @@
     "name": "opl3",
     "version": "0.4.3",
     "description": "OPL3 emulator library",
-    "main": "index.js",
+    "main": "lib/index.js",
     "preferGlobal": true,
     "bin": {
         "opl3": "cli.js"
     },
     "scripts": {
         "rollup": "rollup -c",
-        "bundle": "browserify index.js --standalone OPL3 | derequire > dist/opl3.js",
+        "bundle": "browserify lib/index.js --standalone OPL3 | derequire > dist/opl3.js",
         "postbundle": "uglifyjs dist/opl3.js > dist/opl3.min.js",
         "lint": "./node_modules/.bin/eslint -c ./.eslintrc.json lib/**/*.js ./*.js",
         "test": "echo \"Error: no test specified\" && exit 1"

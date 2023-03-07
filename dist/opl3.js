@@ -905,7 +905,7 @@
 	  }]);
 	  return OPL3;
 	}();
-	var opl3$1 = OPL3$1;
+	var opl3 = OPL3$1;
 	var Channel = /*#__PURE__*/function () {
 	  function Channel(baseAddress, opl) {
 	    _classCallCheck(this, Channel);
@@ -7420,52 +7420,23 @@
 	  _createClass(MainPlayer, [{
 	    key: "init",
 	    value: function () {
-	      var _init = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
-	        var _this2 = this;
-	        return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+	      var _init = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
+	        return _regeneratorRuntime().wrap(function _callee$(_context) {
 	          while (1) {
-	            switch (_context2.prev = _context2.next) {
+	            switch (_context.prev = _context.next) {
 	              case 0:
-	                _context2.next = 2;
+	                _context.next = 2;
 	                return fetch(currentScriptSrc).then(function (script) {
 	                  return script.text();
-	                }).then( /*#__PURE__*/function () {
-	                  var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(text) {
-	                    return _regeneratorRuntime().wrap(function _callee$(_context) {
-	                      while (1) {
-	                        switch (_context.prev = _context.next) {
-	                          case 0:
-	                            _this2.opl3module = text;
-
-	                            /*this.audioContext = new AudioContext();
-	                            await this.audioContext.audioWorklet.addModule("test-processor.js");
-	                              this.worklet = new AudioWorkletNode(this.audioContext, "test-generator", {
-	                                numberOfOutputs: 1,
-	                                outputChannelCount : [2]
-	                            });
-	                              var gainNode = this.audioContext.createGain();
-	                            gainNode.gain.value = 4;
-	                            gainNode.connect(this.audioContext.destination);
-	                              // Pass the whole OPL3 module into the worklet
-	                            this.worklet.port.postMessage({ cmd: 'OPL3', value: this.opl3module });
-	                            this.worklet.connect(gainNode);*/
-	                          case 1:
-	                          case "end":
-	                            return _context.stop();
-	                        }
-	                      }
-	                    }, _callee);
-	                  }));
-	                  return function (_x) {
-	                    return _ref.apply(this, arguments);
-	                  };
-	                }());
+	                });
 	              case 2:
+	                this.opl3module = _context.sent;
+	              case 3:
 	              case "end":
-	                return _context2.stop();
+	                return _context.stop();
 	            }
 	          }
-	        }, _callee2);
+	        }, _callee, this);
 	      }));
 	      function init() {
 	        return _init.apply(this, arguments);
@@ -7475,14 +7446,14 @@
 	  }, {
 	    key: "initContext",
 	    value: function () {
-	      var _initContext = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
+	      var _initContext = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
 	        var gainNode;
-	        return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+	        return _regeneratorRuntime().wrap(function _callee2$(_context2) {
 	          while (1) {
-	            switch (_context3.prev = _context3.next) {
+	            switch (_context2.prev = _context2.next) {
 	              case 0:
 	                this.audioContext = new AudioContext();
-	                _context3.next = 3;
+	                _context2.next = 3;
 	                return this.audioContext.audioWorklet.addModule("test-processor.js");
 	              case 3:
 	                this.worklet = new AudioWorkletNode(this.audioContext, "test-generator", {
@@ -7501,10 +7472,10 @@
 	                this.worklet.connect(gainNode);
 	              case 9:
 	              case "end":
-	                return _context3.stop();
+	                return _context2.stop();
 	            }
 	          }
-	        }, _callee3, this);
+	        }, _callee2, this);
 	      }));
 	      function initContext() {
 	        return _initContext.apply(this, arguments);
@@ -7519,16 +7490,16 @@
 	  }, {
 	    key: "load",
 	    value: function () {
-	      var _load = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(buffer) {
-	        return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+	      var _load = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(buffer) {
+	        return _regeneratorRuntime().wrap(function _callee3$(_context3) {
 	          while (1) {
-	            switch (_context4.prev = _context4.next) {
+	            switch (_context3.prev = _context3.next) {
 	              case 0:
 	                if (!(!this.audioContext || !this.worklet)) {
-	                  _context4.next = 3;
+	                  _context3.next = 3;
 	                  break;
 	                }
-	                _context4.next = 3;
+	                _context3.next = 3;
 	                return this.initContext();
 	              case 3:
 	                this.worklet && this.worklet.port.postMessage({
@@ -7537,12 +7508,12 @@
 	                });
 	              case 4:
 	              case "end":
-	                return _context4.stop();
+	                return _context3.stop();
 	            }
 	          }
-	        }, _callee4, this);
+	        }, _callee3, this);
 	      }));
-	      function load(_x2) {
+	      function load(_x) {
 	        return _load.apply(this, arguments);
 	      }
 	      return load;
@@ -7560,7 +7531,7 @@
 
 	// To be executed inside AudioWorklet in AudioWorkletGlobalScope
 
-	var OPL3 = opl3$1;
+	var OPL3 = opl3;
 	var DRO = dro;
 	var IMF = imf;
 	var LAA = laa;
@@ -7678,8 +7649,8 @@
 	}();
 	var workletPlayer = WorkletPlayer;
 
-	var opl3 = {
-	  OPL3: opl3$1,
+	var lib = {
+	  OPL3: opl3,
 	  format: {
 	    LAA: laa,
 	    //MUS: require('./format/mus'),
@@ -7696,6 +7667,6 @@
 	  WorkletPlayer: workletPlayer
 	};
 
-	return opl3;
+	return lib;
 
 }));
