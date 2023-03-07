@@ -7392,6 +7392,8 @@
 	  return dest;
 	};
 
+	var processor = "class WorkletProcessor extends AudioWorkletProcessor {\r\n    constructor() {\r\n        super();\r\n        this.port.onmessage = (e) => {\r\n            switch (e.data.cmd) {\r\n                case \"OPL3\": {\r\n                    // self is needed for browserify'd module\r\n                    // rollup's umd doesn't need it\r\n                    const opl3module = new Function(\"self\", e.data.value);\r\n                    opl3module(globalThis);\r\n                    console.log(globalThis)\r\n\r\n                    this.player = new OPL3.WorkletPlayer(this.port.postMessage, {\r\n                        sampleRate: 48000,\r\n                    });\r\n                    console.log(this.player)\r\n\r\n                    break;\r\n                }\r\n                case \"load\": {\r\n                    this.player.load(e.data.value);\r\n                    break;\r\n                }\r\n                case \"play\": {\r\n                    break;\r\n                }\r\n                case \"stop\": {\r\n                    break;\r\n                }\r\n            }\r\n        }\r\n    }\r\n\r\n    process(inputs, outputs, parameters) {\r\n        // Float32Array(128)\r\n        this.player.update(outputs[0]);\r\n\r\n        return true;\r\n    }\r\n}\r\n\r\nregisterProcessor(\"opl3-generator\", WorkletProcessor);\r\n";
+
 	var currentScriptSrc = null;
 	try {
 	  currentScriptSrc = document.currentScript.src;
@@ -7447,16 +7449,20 @@
 	    key: "initContext",
 	    value: function () {
 	      var _initContext = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
-	        var gainNode;
+	        var blob, objectURL, gainNode;
 	        return _regeneratorRuntime().wrap(function _callee2$(_context2) {
 	          while (1) {
 	            switch (_context2.prev = _context2.next) {
 	              case 0:
+	                blob = new Blob([processor], {
+	                  type: 'application/javascript'
+	                });
+	                objectURL = URL.createObjectURL(blob);
 	                this.audioContext = new AudioContext();
-	                _context2.next = 3;
-	                return this.audioContext.audioWorklet.addModule("test-processor.js");
-	              case 3:
-	                this.worklet = new AudioWorkletNode(this.audioContext, "test-generator", {
+	                _context2.next = 5;
+	                return this.audioContext.audioWorklet.addModule(objectURL);
+	              case 5:
+	                this.worklet = new AudioWorkletNode(this.audioContext, "opl3-generator", {
 	                  numberOfOutputs: 1,
 	                  outputChannelCount: [2]
 	                });
@@ -7470,7 +7476,7 @@
 	                  value: this.opl3module
 	                });
 	                this.worklet.connect(gainNode);
-	              case 9:
+	              case 11:
 	              case "end":
 	                return _context2.stop();
 	            }

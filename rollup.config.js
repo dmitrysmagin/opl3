@@ -4,6 +4,7 @@ const commonjs = require('@rollup/plugin-commonjs');
 const json = require('@rollup/plugin-json');
 const globals = require('rollup-plugin-node-globals');
 const builtins = require('rollup-plugin-node-builtins');
+const { string } = require('rollup-plugin-string');
 
 module.exports = {
     input: 'lib/index.js',
@@ -14,6 +15,7 @@ module.exports = {
     },
     plugins: [
         json(),
+        string({ include: "**/*-processor.js", }),
         commonjs({ transformMixedEsModules: true }),
         nodeResolve({ browser: true, preferBuiltins: true, }),
         babel({ babelHelpers: 'bundled' }),
