@@ -4541,7 +4541,7 @@
 	        speed: 6,
 	        speedCnt: 6,
 	        //pOrderList: null,
-	        //orderSize: 0,
+	        orderSize: 0,
 	        order: [],
 	        orderPos: 0,
 	        //pPatternList: null,
@@ -4576,6 +4576,18 @@
 	    this.opl = opl;
 	  }
 	  _createClass(RAD, [{
+	    key: "rad_playnote",
+	    value: function rad_playnote(ch, v0, v1, v3) {
+	      //console.log(`ch: ${ch}, note: ${note}-${octave}, ins: ${instrument}`)
+	    }
+	  }, {
+	    key: "rad_next_pattern",
+	    value: function rad_next_pattern() {
+	      if (++_classPrivateFieldGet(this, _rad).orderPos >= _classPrivateFieldGet(this, _rad).orderSize) _classPrivateFieldGet(this, _rad).orderPos = 0;
+	      if (_classPrivateFieldGet(this, _rad).order[_classPrivateFieldGet(this, _rad).orderPos] & 0x80) _classPrivateFieldGet(this, _rad).orderPos = _classPrivateFieldGet(this, _rad).order[_classPrivateFieldGet(this, _rad).orderPos] & 0x7f;
+	      _classPrivateFieldGet(this, _rad).patternPos = 0;
+	    }
+	  }, {
 	    key: "load",
 	    value: function load(buffer) {
 	      var header = new Buffer.from(buffer.buffer).slice(0, 16).toString();
@@ -4604,11 +4616,12 @@
 	        off += 12;
 	      }
 	      off++;
-	      var orderSize = ptune.getUint8(off);
-	      _classPrivateFieldGet(this, _rad).order = Array.from(new Uint8Array(ptune.buffer.slice(off + 1, off + 1 + orderSize)));
-	      console.log('Order size: ', orderSize);
-	      console.log(_classPrivateFieldGet(this, _rad).order);
-	      off += orderSize + 1;
+	      _classPrivateFieldGet(this, _rad).orderSize = ptune.getUint8(off);
+	      _classPrivateFieldGet(this, _rad).order = Array.from(new Uint8Array(ptune.buffer.slice(off + 1, off + 1 + _classPrivateFieldGet(this, _rad).orderSize)));
+	      //console.log('Order size: ', this.#rad.orderSize);
+	      //console.log(this.#rad.order);
+
+	      off += _classPrivateFieldGet(this, _rad).orderSize + 1;
 	      var patternList = new Uint16Array(ptune.buffer.slice(off, off + 32 * 2));
 	      console.log(patternList);
 	      for (var p = 0; p < 32; p++) {
@@ -4630,7 +4643,7 @@
 	            if (eff & 0x0f) offset++;
 	          } while (!(ch & 0x80));
 	        } while (!(line & 0x80));
-	        _classPrivateFieldGet(this, _rad).patterns[p] = Array.from(new Uint8Array(ptune.buffer.slice(patternList[p], offset)));
+	        _classPrivateFieldGet(this, _rad).patterns[p] = new Uint8Array(ptune.buffer.slice(patternList[p], offset));
 	      }
 	      console.log(_classPrivateFieldGet(this, _rad).patterns);
 	    }
@@ -4639,8 +4652,38 @@
 	    value: function update() {
 	      // rad_update_frame()
 	      // offset inside each pattern
-	      _classPrivateFieldGet(this, _rad).patternPos;
-	      if (_classPrivateFieldGet(this, _rad).speedCnt-- > 0) ;
+	      var i = _classPrivateFieldGet(this, _rad).patternPos;
+	      var p = _classPrivateFieldGet(this, _rad).patterns[_classPrivateFieldGet(this, _rad).order[_classPrivateFieldGet(this, _rad).orderPos] & 0x7f];
+	      var ch;
+	      if (_classPrivateFieldGet(this, _rad).speedCnt-- > 0) {
+	        //rad_update_notes();
+	        return;
+	      }
+	      console.log(_classPrivateFieldGet(this, _rad).orderPos, _classPrivateFieldGet(this, _rad).currentLine, i);
+	      if (i < p.length) if ((p[i] & 0x7f) === _classPrivateFieldGet(this, _rad).currentLine) {
+	        if (p[i] & 0x80) {
+	          // last line in the pattern?
+	          _classPrivateFieldGet(this, _rad).patternPos = p.length;
+	        }
+	        i++; // move to first channel
+	        do {
+	          ch = p[i];
+	          var e = p[i + 2] & 0x0f; // if eff val present
+
+	          this.rad_playnote(ch & 0x7f, p[i + 1], p[i + 2], e ? p[i + 3] : 0);
+	          i += e ? 4 : 3;
+
+	          // pattern jump
+	        } while (!(ch & 0x80));
+	        _classPrivateFieldGet(this, _rad).patternPos = i;
+	      }
+	      _classPrivateFieldGet(this, _rad).speedCnt = _classPrivateFieldGet(this, _rad).speed - 1;
+	      if (++_classPrivateFieldGet(this, _rad).currentLine >= 64) {
+	        _classPrivateFieldGet(this, _rad).currentLine = 0;
+	        this.rad_next_pattern();
+	      }
+
+	      //rad_update_notes();
 	    }
 	  }, {
 	    key: "rewind",
