@@ -4564,7 +4564,10 @@
 	        // 9
 	        PortSlide: [],
 	        // 9
-	        VolSlide: [] // 9
+	        VolSlide: [],
+	        // 9
+
+	        pattern_jmp_f: 0
 	      }
 	    });
 	    _defineProperty(this, "rad_NoteFreq", [0x16b, 0x181, 0x198, 0x1b0, 0x1ca, 0x1e5, 0x202, 0x220, 0x241, 0x263, 0x287, 0x2ae]);
@@ -4576,9 +4579,12 @@
 	    this.opl = opl;
 	  }
 	  _createClass(RAD, [{
+	    key: "rad_update_notes",
+	    value: function rad_update_notes() {}
+	  }, {
 	    key: "rad_playnote",
 	    value: function rad_playnote(ch, v0, v1, v3) {
-	      //console.log(`ch: ${ch}, note: ${note}-${octave}, ins: ${instrument}`)
+	      //console.log(`ch: ${ch}, ${note ? n[note - 1] : "  "}${note ? octave : " "} ${instrument || "-"}, eff: ${effect}=${effect_value}`)
 	    }
 	  }, {
 	    key: "rad_next_pattern",
@@ -4598,6 +4604,7 @@
 	      var off = 17;
 	      var speed = ptune.getUint8(off);
 	      _classPrivateFieldGet(this, _rad).speed = speed & 0x3f;
+	      _classPrivateFieldGet(this, _rad).speedCnt = _classPrivateFieldGet(this, _rad).speed - 1;
 	      console.log('Speed: ', _classPrivateFieldGet(this, _rad).speed);
 	      _classPrivateFieldSet(this, _Hz, speed & 0x60 ? 18.2 : 50);
 	      console.log('Timer: ', speed & 0x60 ? 18 : 50);
@@ -4612,7 +4619,7 @@
 	      // read initial instruments
 	      while (ptune.getUint8(off)) {
 	        var i = ptune.getUint8(off);
-	        _classPrivateFieldGet(this, _rad).instruments[i] = Array.from(new Uint8Array(ptune.buffer.slice(off + 1, off + 12)));
+	        _classPrivateFieldGet(this, _rad).instruments[i] = new Uint8Array(ptune.buffer.slice(off + 1, off + 12));
 	        off += 12;
 	      }
 	      off++;
@@ -4656,11 +4663,13 @@
 	      var p = _classPrivateFieldGet(this, _rad).patterns[_classPrivateFieldGet(this, _rad).order[_classPrivateFieldGet(this, _rad).orderPos] & 0x7f];
 	      var ch;
 	      if (_classPrivateFieldGet(this, _rad).speedCnt-- > 0) {
-	        //rad_update_notes();
+	        this.rad_update_notes();
 	        return;
 	      }
-	      console.log(_classPrivateFieldGet(this, _rad).orderPos, _classPrivateFieldGet(this, _rad).currentLine, i);
-	      if (i < p.length) if ((p[i] & 0x7f) === _classPrivateFieldGet(this, _rad).currentLine) {
+
+	      //console.log(this.#rad.orderPos, this.#rad.currentLine, i)
+
+	      if (i < p.length && (p[i] & 0x7f) === _classPrivateFieldGet(this, _rad).currentLine) {
 	        if (p[i] & 0x80) {
 	          // last line in the pattern?
 	          _classPrivateFieldGet(this, _rad).patternPos = p.length;
@@ -4673,7 +4682,30 @@
 	          this.rad_playnote(ch & 0x7f, p[i + 1], p[i + 2], e ? p[i + 3] : 0);
 	          i += e ? 4 : 3;
 
-	          // pattern jump
+	          // pattern jump command
+	          if (_classPrivateFieldGet(this, _rad).pattern_jmp_f & 0x80) {
+	            _classPrivateFieldGet(this, _rad).speedCnt = _classPrivateFieldGet(this, _rad).speed - 1;
+	            _classPrivateFieldGet(this, _rad).currentLine = _classPrivateFieldGet(this, _rad).pattern_jmp_f & 0x7f;
+	            this.rad_next_pattern();
+	            i = _classPrivateFieldGet(this, _rad).patternPos;
+	            p = _classPrivateFieldGet(this, _rad).patterns[_classPrivateFieldGet(this, _rad).order[_classPrivateFieldGet(this, _rad).orderPos] & 0x7f];
+	            while ((p[i] & 0x7f) < (_classPrivateFieldGet(this, _rad).pattern_jmp_f & 0x7f)) {
+	              if (p[i] & 0x80) {
+	                _classPrivateFieldGet(this, _rad).pattern_jmp_f = 0;
+	                _classPrivateFieldGet(this, _rad).patternPos = i;
+	                this.rad_update_notes();
+	                return;
+	              }
+	              i++;
+	              while (!(p[i] & 0x80)) {
+	                i += p[i + 2] & 0x0f ? 4 : 3;
+	              }
+	              _classPrivateFieldGet(this, _rad).pattern_jmp_f = 0;
+	              _classPrivateFieldGet(this, _rad).patternPos = i;
+	              this.rad_update_notes();
+	              return;
+	            }
+	          }
 	        } while (!(ch & 0x80));
 	        _classPrivateFieldGet(this, _rad).patternPos = i;
 	      }
@@ -4682,8 +4714,7 @@
 	        _classPrivateFieldGet(this, _rad).currentLine = 0;
 	        this.rad_next_pattern();
 	      }
-
-	      //rad_update_notes();
+	      this.rad_update_notes();
 	    }
 	  }, {
 	    key: "rewind",
