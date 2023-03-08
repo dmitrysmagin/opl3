@@ -4531,6 +4531,7 @@
 	var raw = RAW$1;
 
 	var _rad = /*#__PURE__*/new WeakMap();
+	var _Hz = /*#__PURE__*/new WeakMap();
 	var RAD$1 = /*#__PURE__*/function () {
 	  function RAD(opl) {
 	    _classCallCheck(this, RAD);
@@ -4568,6 +4569,10 @@
 	    });
 	    _defineProperty(this, "rad_NoteFreq", [0x16b, 0x181, 0x198, 0x1b0, 0x1ca, 0x1e5, 0x202, 0x220, 0x241, 0x263, 0x287, 0x2ae]);
 	    _defineProperty(this, "rad_ChannelOffs", [0x20, 0x21, 0x22, 0x28, 0x29, 0x2a, 0x30, 0x31, 0x32]);
+	    _classPrivateFieldInitSpec(this, _Hz, {
+	      writable: true,
+	      value: 50
+	    });
 	    this.opl = opl;
 	  }
 	  _createClass(RAD, [{
@@ -4582,7 +4587,7 @@
 	      var speed = ptune.getUint8(off);
 	      _classPrivateFieldGet(this, _rad).speed = speed & 0x3f;
 	      console.log('Speed: ', _classPrivateFieldGet(this, _rad).speed);
-	      this.rad_set_timer(speed & 0x60 ? 18 : 50);
+	      _classPrivateFieldSet(this, _Hz, speed & 0x60 ? 18.2 : 50);
 	      console.log('Timer: ', speed & 0x60 ? 18 : 50);
 	      if (speed & 0x80) {
 	        off++; // Skip description
@@ -4611,40 +4616,40 @@
 	          _classPrivateFieldGet(this, _rad).patterns[p] = [];
 	          continue;
 	        }
-	        var o = off = patternList[p]; // off
+
+	        // calculate the length of each pattern in the stream and slice them into an array
+	        var offset = patternList[p];
 	        var line;
 	        do {
-	          line = ptune.getUint8(o);
-	          o++;
+	          line = ptune.getUint8(offset++);
 	          var ch;
 	          do {
-	            ch = ptune.getUint8(o);
-	            o++;
-	            ptune.getUint8(o);
-	            o++;
-	            var eff = ptune.getUint8(o);
-	            o++;
-	            if (eff & 0x0f) o++;
+	            ch = ptune.getUint8(offset++);
+	            ptune.getUint8(offset++);
+	            var eff = ptune.getUint8(offset++);
+	            if (eff & 0x0f) offset++;
 	          } while (!(ch & 0x80));
 	        } while (!(line & 0x80));
-	        _classPrivateFieldGet(this, _rad).patterns[p] = Array.from(new Uint8Array(ptune.buffer.slice(off, o)));
+	        _classPrivateFieldGet(this, _rad).patterns[p] = Array.from(new Uint8Array(ptune.buffer.slice(patternList[p], offset)));
 	      }
 	      console.log(_classPrivateFieldGet(this, _rad).patterns);
 	    }
 	  }, {
 	    key: "update",
-	    value: function update() {}
+	    value: function update() {
+	      // rad_update_frame()
+	      // offset inside each pattern
+	      _classPrivateFieldGet(this, _rad).patternPos;
+	      if (_classPrivateFieldGet(this, _rad).speedCnt-- > 0) ;
+	    }
 	  }, {
 	    key: "rewind",
 	    value: function rewind() {}
 	  }, {
 	    key: "refresh",
-	    value: function refresh() {}
-
-	    // private methods
-	  }, {
-	    key: "rad_set_timer",
-	    value: function rad_set_timer(timer) {}
+	    value: function refresh() {
+	      return 1.0 / _classPrivateFieldGet(this, _Hz);
+	    }
 	  }]);
 	  return RAD;
 	}();
