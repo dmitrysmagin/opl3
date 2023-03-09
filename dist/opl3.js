@@ -4533,7 +4533,7 @@
 	var _rad = /*#__PURE__*/new WeakMap();
 	var _Hz = /*#__PURE__*/new WeakMap();
 	var RAD$1 = /*#__PURE__*/function () {
-	  function RAD(opl) {
+	  function RAD(opl, options) {
 	    _classCallCheck(this, RAD);
 	    _classPrivateFieldInitSpec(this, _rad, {
 	      writable: true,
@@ -5266,7 +5266,7 @@
 	  return ret;
 	}
 
-	var processor = "class WorkletProcessor extends AudioWorkletProcessor {\r\n    constructor() {\r\n        super();\r\n        this.port.onmessage = (e) => {\r\n            switch (e.data.cmd) {\r\n                case \"OPL3\": {\r\n                    // self is needed for browserify'd module\r\n                    // rollup's umd doesn't need it\r\n                    const opl3module = new Function(\"self\", e.data.value);\r\n                    opl3module(globalThis);\r\n                    console.log(globalThis)\r\n\r\n                    this.player = new OPL3.WorkletPlayer(this.port.postMessage, e.data.options || {});\r\n                    console.log(this.player)\r\n\r\n                    break;\r\n                }\r\n                case \"load\": {\r\n                    this.player.load(e.data.value);\r\n                    break;\r\n                }\r\n                case \"play\": {\r\n                    break;\r\n                }\r\n                case \"stop\": {\r\n                    break;\r\n                }\r\n            }\r\n        }\r\n    }\r\n\r\n    process(inputs, outputs, parameters) {\r\n        // Float32Array(128)\r\n        this.player.update(outputs[0]);\r\n        this.port.postMessage({ cmd: \"currentTime\", value: { currentFrame, currentTime } })\r\n        this.port.postMessage({ cmd: \"context\", value: this.player.format?.getContext() || 0 })\r\n\r\n        return true;\r\n    }\r\n}\r\n\r\nregisterProcessor(\"opl3-generator\", WorkletProcessor);\r\n";
+	var processor = "class WorkletProcessor extends AudioWorkletProcessor {\r\n    constructor() {\r\n        super();\r\n        this.port.onmessage = (e) => {\r\n            switch (e.data.cmd) {\r\n                case \"OPL3\": {\r\n                    // self is needed for browserify'd module\r\n                    // rollup's umd doesn't need it\r\n                    const opl3module = new Function(\"self\", e.data.value);\r\n                    opl3module(globalThis);\r\n                    console.log(globalThis)\r\n\r\n                    this.player = new OPL3.WorkletPlayer(e.data.options || {}, (message) => this.port.postMessage(message));\r\n                    console.log(this.player)\r\n\r\n                    break;\r\n                }\r\n                case \"load\": {\r\n                    this.player.load(e.data.value);\r\n                    break;\r\n                }\r\n                case \"play\": {\r\n                    break;\r\n                }\r\n                case \"stop\": {\r\n                    break;\r\n                }\r\n            }\r\n        }\r\n    }\r\n\r\n    process(inputs, outputs, parameters) {\r\n        // Float32Array(128)\r\n        this.player.update(outputs[0]);\r\n        this.port.postMessage({ cmd: \"currentTime\", value: { currentFrame, currentTime } })\r\n\r\n        return true;\r\n    }\r\n}\r\n\r\nregisterProcessor(\"opl3-generator\", WorkletProcessor);\r\n";
 
 	var currentScriptSrc = null;
 	try {
@@ -5448,11 +5448,10 @@
 	var _options = /*#__PURE__*/new WeakMap();
 	var _samplesBuffer = /*#__PURE__*/new WeakMap();
 	var _chunkSize = /*#__PURE__*/new WeakMap();
-	var _postMessage = /*#__PURE__*/new WeakMap();
 	var WorkletPlayer = /*#__PURE__*/function () {
 	  // 48000 for audio worklet
 
-	  function WorkletPlayer(postMessage, options) {
+	  function WorkletPlayer(options, postMessage) {
 	    _classCallCheck(this, WorkletPlayer);
 	    _classPrivateFieldInitSpec(this, _options, {
 	      writable: true,
@@ -5468,11 +5467,8 @@
 	      writable: true,
 	      value: 0
 	    });
-	    _classPrivateFieldInitSpec(this, _postMessage, {
-	      writable: true,
-	      value: null
-	    });
-	    _classPrivateFieldSet(this, _postMessage, postMessage);
+	    _defineProperty(this, "postMessage", null);
+	    this.postMessage = postMessage;
 	    _classPrivateFieldSet(this, _options, options || {});
 	    _classPrivateFieldGet(this, _options).bufferSize = 128; // length of output in processor    
 	  }
@@ -5518,13 +5514,23 @@
 	      var seek = 0;
 	      _classPrivateFieldGet(this, _samplesBuffer).fill(0.0);
 	      if (_classPrivateFieldGet(this, _chunkSize) === 0) {
+	        var _this$postMessage, _this$format;
 	        this.format.update();
+	        (_this$postMessage = this.postMessage) === null || _this$postMessage === void 0 ? void 0 : _this$postMessage.call(this, {
+	          cmd: "context",
+	          value: ((_this$format = this.format) === null || _this$format === void 0 ? void 0 : _this$format.getContext()) || 0
+	        });
 	        _classPrivateFieldSet(this, _chunkSize, 2 * (this.sampleRate * this.format.refresh() | 0));
 	      }
 	      if (_classPrivateFieldGet(this, _chunkSize) < _classPrivateFieldGet(this, _options).bufferSize * 2) {
+	        var _this$postMessage2, _this$format2;
 	        this.format.opl.read(_classPrivateFieldGet(this, _samplesBuffer), seek, _classPrivateFieldGet(this, _chunkSize));
 	        seek += _classPrivateFieldGet(this, _chunkSize);
 	        this.format.update();
+	        (_this$postMessage2 = this.postMessage) === null || _this$postMessage2 === void 0 ? void 0 : _this$postMessage2.call(this, {
+	          cmd: "context",
+	          value: ((_this$format2 = this.format) === null || _this$format2 === void 0 ? void 0 : _this$format2.getContext()) || 0
+	        });
 	        _classPrivateFieldSet(this, _chunkSize, 2 * (this.sampleRate * this.format.refresh() | 0));
 	      }
 	      if (_classPrivateFieldGet(this, _chunkSize) > 0) {
