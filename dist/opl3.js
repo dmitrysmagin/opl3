@@ -4556,7 +4556,7 @@
 	        // 9
 	        OldA0B0: new Uint16Array(9),
 	        // 9
-	        ToneSlideSpeed: new Uint8Array(9),
+	        ToneSlideSpeed: new Uint16Array(9),
 	        // 9
 	        ToneSlideFreq: new Uint16Array(9),
 	        // 9
@@ -4579,6 +4579,11 @@
 	    this.opl = opl;
 	  }
 	  _createClass(RAD, [{
+	    key: "getContext",
+	    value: function getContext() {
+	      return _classPrivateFieldGet(this, _rad);
+	    }
+	  }, {
 	    key: "rad_adlib_write",
 	    value: function rad_adlib_write(reg, value) {
 	      this.opl.write(0, reg, value);
@@ -4625,7 +4630,7 @@
 	    value: function rad_set_freq(ch, new_freq) {
 	      var freq = new_freq % (0x2ae - 0x157) + 0x157;
 	      var octave = new_freq / (0x2ae - 0x157);
-	      _classPrivateFieldGet(this, _rad).OldA0B0[ch] = _classPrivateFieldGet(this, _rad).OldA0B0[ch] & ~0x2000 | freq | octave << 10;
+	      _classPrivateFieldGet(this, _rad).OldA0B0[ch] = _classPrivateFieldGet(this, _rad).OldA0B0[ch] & 0x2000 | freq | octave << 10;
 	      this.rad_adlib_write(0xa0 + ch, _classPrivateFieldGet(this, _rad).OldA0B0[ch] & 0xff);
 	      this.rad_adlib_write(0xb0 + ch, _classPrivateFieldGet(this, _rad).OldA0B0[ch] >> 8);
 	    }
@@ -4633,51 +4638,50 @@
 	    key: "rad_update_notes",
 	    value: function rad_update_notes() {
 	      // process portamentos
-	      /*for (let i = 0; i <= 8; i++) {
-	          if (this.#rad.PortSlide[i])
-	              this.rad_set_freq(i, this.rad_get_freq(i) + this.#rad.PortSlide[i]);
-	      }*/
+	      for (var i = 0; i <= 8; i++) {
+	        if (_classPrivateFieldGet(this, _rad).PortSlide[i]) this.rad_set_freq(i, this.rad_get_freq(i) + _classPrivateFieldGet(this, _rad).PortSlide[i]);
+	      }
 
 	      // process volume slides
-	      for (var i = 0; i <= 8; i++) {
+	      for (var _i = 0; _i <= 8; _i++) {
 	        var v = void 0;
-	        if (_classPrivateFieldGet(this, _rad).VolSlide[i] > 0) {
-	          v = (_classPrivateFieldGet(this, _rad).Old43[i] & 0x3f ^ 0x3f) - _classPrivateFieldGet(this, _rad).VolSlide[i];
+	        if (_classPrivateFieldGet(this, _rad).VolSlide[_i] > 0) {
+	          v = (_classPrivateFieldGet(this, _rad).Old43[_i] & 0x3f ^ 0x3f) - _classPrivateFieldGet(this, _rad).VolSlide[_i];
 	          if (v > 63) v = 63;
-	          this.rad_set_volume(i, v);
+	          this.rad_set_volume(_i, v);
 	        } else {
-	          v = (_classPrivateFieldGet(this, _rad).Old43[i] & 0x3f ^ 0x3f) - _classPrivateFieldGet(this, _rad).VolSlide[i];
+	          v = (_classPrivateFieldGet(this, _rad).Old43[_i] & 0x3f ^ 0x3f) - _classPrivateFieldGet(this, _rad).VolSlide[_i];
 	          if (v < 0) v = 0;
-	          this.rad_set_volume(i, v);
+	          this.rad_set_volume(_i, v);
 	        }
 	      }
 
 	      // process tone slides
-	      for (var _i = 0; _i <= 8; _i++) {
-	        if (_classPrivateFieldGet(this, _rad).ToneSlide[_i]) {
-	          if (this.rad_get_freq(_i) > _classPrivateFieldGet(this, _rad).ToneSlideFreq[_i]) {
-	            if (this.rad_get_freq(_i) - _classPrivateFieldGet(this, _rad).ToneSlideSpeed[_i] < _classPrivateFieldGet(this, _rad).ToneSlideFreq[_i]) {
-	              _classPrivateFieldGet(this, _rad).ToneSlide[_i] = 0;
-	              this.rad_set_freq(_i, _classPrivateFieldGet(this, _rad).ToneSlideFreq[_i]);
+	      for (var _i2 = 0; _i2 <= 8; _i2++) {
+	        if (_classPrivateFieldGet(this, _rad).ToneSlide[_i2]) {
+	          if (this.rad_get_freq(_i2) > _classPrivateFieldGet(this, _rad).ToneSlideFreq[_i2]) {
+	            if (this.rad_get_freq(_i2) - _classPrivateFieldGet(this, _rad).ToneSlideSpeed[_i2] < _classPrivateFieldGet(this, _rad).ToneSlideFreq[_i2]) {
+	              _classPrivateFieldGet(this, _rad).ToneSlide[_i2] = 0;
+	              this.rad_set_freq(_i2, _classPrivateFieldGet(this, _rad).ToneSlideFreq[_i2]);
 	              continue;
 	              //goto _jmp_0;
 	            }
 
-	            this.rad_set_freq(_i, this.rad_get_freq(_i) - _classPrivateFieldGet(this, _rad).ToneSlideSpeed[_i]);
+	            this.rad_set_freq(_i2, this.rad_get_freq(_i2) - _classPrivateFieldGet(this, _rad).ToneSlideSpeed[_i2]);
 	          } else {
-	            if (this.rad_get_freq(_i) < _classPrivateFieldGet(this, _rad).ToneSlideFreq[_i]) {
-	              if (this.rad_get_freq(_i) + _classPrivateFieldGet(this, _rad).ToneSlideSpeed[_i] > _classPrivateFieldGet(this, _rad).ToneSlideFreq[_i]) {
-	                _classPrivateFieldGet(this, _rad).ToneSlide[_i] = 0;
-	                this.rad_set_freq(_i, _classPrivateFieldGet(this, _rad).ToneSlideFreq[_i]);
+	            if (this.rad_get_freq(_i2) < _classPrivateFieldGet(this, _rad).ToneSlideFreq[_i2]) {
+	              if (this.rad_get_freq(_i2) + _classPrivateFieldGet(this, _rad).ToneSlideSpeed[_i2] > _classPrivateFieldGet(this, _rad).ToneSlideFreq[_i2]) {
+	                _classPrivateFieldGet(this, _rad).ToneSlide[_i2] = 0;
+	                this.rad_set_freq(_i2, _classPrivateFieldGet(this, _rad).ToneSlideFreq[_i2]);
 	                continue;
 	                //goto _jmp_0;
 	              }
 
-	              this.rad_set_freq(_i, this.rad_get_freq(_i) + _classPrivateFieldGet(this, _rad).ToneSlideSpeed[_i]);
+	              this.rad_set_freq(_i2, this.rad_get_freq(_i2) + _classPrivateFieldGet(this, _rad).ToneSlideSpeed[_i2]);
 	            } else {
 	              //_jmp_0:
-	              _classPrivateFieldGet(this, _rad).ToneSlide[_i] = 0;
-	              this.rad_set_freq(_i, _classPrivateFieldGet(this, _rad).ToneSlideFreq[_i]);
+	              _classPrivateFieldGet(this, _rad).ToneSlide[_i2] = 0;
+	              this.rad_set_freq(_i2, _classPrivateFieldGet(this, _rad).ToneSlideFreq[_i2]);
 	            }
 	          }
 	        }
@@ -4696,7 +4700,7 @@
 	      if (note && effect === 3) {
 	        _classPrivateFieldGet(this, _rad).ToneSlideFreq[channel] = octave * (0x2ae - 0x157) + this.rad_NoteFreq[note - 1] - 0x157;
 	        _classPrivateFieldGet(this, _rad).ToneSlide[channel] = 1;
-	        if (effect_value) _classPrivateFieldGet(this, _rad).ToneSlideSpeed[channel] = effect_value;
+	        if (effect_value > 0) _classPrivateFieldGet(this, _rad).ToneSlideSpeed[channel] = effect_value;
 	        return;
 	      }
 
@@ -4832,6 +4836,13 @@
 	      if (_classPrivateFieldGet(this, _rad).speedCnt-- > 0) {
 	        this.rad_update_notes();
 	        return;
+	      }
+
+	      // switch off any effects
+	      for (var _i3 = 0; _i3 <= 8; _i3++) {
+	        _classPrivateFieldGet(this, _rad).ToneSlide[_i3] = 0;
+	        _classPrivateFieldGet(this, _rad).VolSlide[_i3] = 0;
+	        _classPrivateFieldGet(this, _rad).PortSlide[_i3] = 0;
 	      }
 
 	      //console.log(this.#rad.orderPos, this.#rad.currentLine, i)
@@ -5271,7 +5282,7 @@
 	  return ret;
 	}
 
-	var processor = "class WorkletProcessor extends AudioWorkletProcessor {\r\n    constructor() {\r\n        super();\r\n        this.port.onmessage = (e) => {\r\n            switch (e.data.cmd) {\r\n                case \"OPL3\": {\r\n                    // self is needed for browserify'd module\r\n                    // rollup's umd doesn't need it\r\n                    const opl3module = new Function(\"self\", e.data.value);\r\n                    opl3module(globalThis);\r\n                    console.log(globalThis)\r\n\r\n                    this.player = new OPL3.WorkletPlayer(this.port.postMessage, e.data.options || {});\r\n                    console.log(this.player)\r\n\r\n                    break;\r\n                }\r\n                case \"load\": {\r\n                    this.player.load(e.data.value);\r\n                    break;\r\n                }\r\n                case \"play\": {\r\n                    break;\r\n                }\r\n                case \"stop\": {\r\n                    break;\r\n                }\r\n            }\r\n        }\r\n    }\r\n\r\n    process(inputs, outputs, parameters) {\r\n        // Float32Array(128)\r\n        this.player.update(outputs[0]);\r\n        this.port.postMessage({ cmd: \"currentTime\", value: { currentFrame, currentTime } })\r\n\r\n        return true;\r\n    }\r\n}\r\n\r\nregisterProcessor(\"opl3-generator\", WorkletProcessor);\r\n";
+	var processor = "class WorkletProcessor extends AudioWorkletProcessor {\r\n    constructor() {\r\n        super();\r\n        this.port.onmessage = (e) => {\r\n            switch (e.data.cmd) {\r\n                case \"OPL3\": {\r\n                    // self is needed for browserify'd module\r\n                    // rollup's umd doesn't need it\r\n                    const opl3module = new Function(\"self\", e.data.value);\r\n                    opl3module(globalThis);\r\n                    console.log(globalThis)\r\n\r\n                    this.player = new OPL3.WorkletPlayer(this.port.postMessage, e.data.options || {});\r\n                    console.log(this.player)\r\n\r\n                    break;\r\n                }\r\n                case \"load\": {\r\n                    this.player.load(e.data.value);\r\n                    break;\r\n                }\r\n                case \"play\": {\r\n                    break;\r\n                }\r\n                case \"stop\": {\r\n                    break;\r\n                }\r\n            }\r\n        }\r\n    }\r\n\r\n    process(inputs, outputs, parameters) {\r\n        // Float32Array(128)\r\n        this.player.update(outputs[0]);\r\n        this.port.postMessage({ cmd: \"currentTime\", value: { currentFrame, currentTime } })\r\n        this.port.postMessage({ cmd: \"rad\", value: this.player.format_player?.getContext() || 0 })\r\n\r\n        return true;\r\n    }\r\n}\r\n\r\nregisterProcessor(\"opl3-generator\", WorkletProcessor);\r\n";
 
 	var currentScriptSrc = null;
 	try {

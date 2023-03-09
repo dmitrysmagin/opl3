@@ -17,13 +17,35 @@
         <button onclick="PlayerPause()">Pause</button>
         <button onclick="PlayerResume()">Resume</button>
     </div>
+    <div>
+        <pre id="info">
+            dsvsdcvc
+            sdffe
+            df
+        </pre>
+    </div>
 
     <script type="text/javascript">
         var counter = document.querySelector(".counter");
+        var info = document.querySelector("#info");
         var player = new OPL3.Player({ prebuffer: 3000, sampleRate: 48000 });
         console.log(player);
         player.on("currentTime", (value) => {
             counter.innerHTML = `currentFrame: ${value.currentFrame}, currentTime: ${value.currentTime.toFixed(2)} s`;
+        })
+        player.on("rad", (value) => {
+            if (value) {
+                delete value.patterns;
+                delete value.instruments;
+                //value.OldA0B0 = new Array.from(value.OldA0B0.buffer)
+                //info.innerHTML = JSON.stringify(value.OldA0B0, null, 4);
+                info.innerHTML = JSON.stringify(value, (key, value) => {
+                    if (key == "OldA0B0") {
+                        return [...value].map(v => ("000" + v.toString(16)).slice(-4))
+                    }
+                    return value;
+                }, 4);
+            }
         })
 
         function FileToArrayBuffer(file /*: File*/) {
