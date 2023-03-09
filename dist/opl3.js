@@ -4755,63 +4755,8 @@
 	      _classPrivateFieldGet(this, _rad).patternPos = 0;
 	    }
 	  }, {
-	    key: "load",
-	    value: function load(buffer) {
-	      var header = new Buffer.from(buffer.buffer).slice(0, 16).toString();
-	      if (header != 'RAD by REALiTY!!') throw new Error('Buffer is not a "RAD by REALiTY!!" file');
-	      var ptune = this.data = new DataView(buffer.buffer);
-	      var version = ptune.getUint8(16);
-	      if (version != 0x10) throw new Error('Unsupported RAD version: 0x' + version.toString(16));
-	      var off = 17;
-	      var speed = ptune.getUint8(off);
-	      _classPrivateFieldGet(this, _rad).speed = speed & 0x3f;
-	      _classPrivateFieldGet(this, _rad).speedCnt = _classPrivateFieldGet(this, _rad).speed - 1;
-	      _classPrivateFieldSet(this, _Hz, speed & 0x60 ? 18.2 : 50);
-	      if (speed & 0x80) {
-	        off++; // Skip description
-	        while (ptune.getUint8(off)) {
-	          off++;
-	        }
-	      }
-	      off++;
-
-	      // read initial instruments
-	      while (ptune.getUint8(off)) {
-	        var i = ptune.getUint8(off);
-	        _classPrivateFieldGet(this, _rad).instruments[i] = new Uint8Array(ptune.buffer.slice(off + 1, off + 12));
-	        off += 12;
-	      }
-	      off++;
-	      _classPrivateFieldGet(this, _rad).orderSize = ptune.getUint8(off);
-	      _classPrivateFieldGet(this, _rad).order = Array.from(new Uint8Array(ptune.buffer.slice(off + 1, off + 1 + _classPrivateFieldGet(this, _rad).orderSize)));
-	      off += _classPrivateFieldGet(this, _rad).orderSize + 1;
-	      var patternList = new Uint16Array(ptune.buffer.slice(off, off + 32 * 2));
-	      for (var p = 0; p < 32; p++) {
-	        if (!patternList[p]) {
-	          _classPrivateFieldGet(this, _rad).patterns[p] = [];
-	          continue;
-	        }
-
-	        // calculate the length of each pattern in the stream and slice them into an array
-	        var offset = patternList[p];
-	        var line;
-	        do {
-	          line = ptune.getUint8(offset++);
-	          var ch;
-	          do {
-	            ch = ptune.getUint8(offset++);
-	            ptune.getUint8(offset++);
-	            var eff = ptune.getUint8(offset++);
-	            if (eff & 0x0f) offset++;
-	          } while (!(ch & 0x80));
-	        } while (!(line & 0x80));
-	        _classPrivateFieldGet(this, _rad).patterns[p] = new Uint8Array(ptune.buffer.slice(patternList[p], offset));
-	      }
-	    }
-	  }, {
-	    key: "update",
-	    value: function update() {
-	      // rad_update_frame()
+	    key: "rad_update_frame",
+	    value: function rad_update_frame() {
 	      // offset inside each pattern
 	      var i = _classPrivateFieldGet(this, _rad).patternPos;
 	      var p = _classPrivateFieldGet(this, _rad).patterns[_classPrivateFieldGet(this, _rad).order[_classPrivateFieldGet(this, _rad).orderPos] & 0x7f];
@@ -4873,6 +4818,65 @@
 	        this.rad_next_pattern();
 	      }
 	      this.rad_update_notes();
+	    }
+	  }, {
+	    key: "load",
+	    value: function load(buffer) {
+	      var header = new Buffer.from(buffer.buffer).slice(0, 16).toString();
+	      if (header != 'RAD by REALiTY!!') throw new Error('Buffer is not a "RAD by REALiTY!!" file');
+	      var ptune = this.data = new DataView(buffer.buffer);
+	      var version = ptune.getUint8(16);
+	      if (version != 0x10) throw new Error('Unsupported RAD version: 0x' + version.toString(16));
+	      var off = 17;
+	      var speed = ptune.getUint8(off);
+	      _classPrivateFieldGet(this, _rad).speed = speed & 0x3f;
+	      _classPrivateFieldGet(this, _rad).speedCnt = _classPrivateFieldGet(this, _rad).speed - 1;
+	      _classPrivateFieldSet(this, _Hz, speed & 0x60 ? 18.2 : 50);
+	      if (speed & 0x80) {
+	        off++; // Skip description
+	        while (ptune.getUint8(off)) {
+	          off++;
+	        }
+	      }
+	      off++;
+
+	      // read initial instruments
+	      while (ptune.getUint8(off)) {
+	        var i = ptune.getUint8(off);
+	        _classPrivateFieldGet(this, _rad).instruments[i] = new Uint8Array(ptune.buffer.slice(off + 1, off + 12));
+	        off += 12;
+	      }
+	      off++;
+	      _classPrivateFieldGet(this, _rad).orderSize = ptune.getUint8(off);
+	      _classPrivateFieldGet(this, _rad).order = Array.from(new Uint8Array(ptune.buffer.slice(off + 1, off + 1 + _classPrivateFieldGet(this, _rad).orderSize)));
+	      off += _classPrivateFieldGet(this, _rad).orderSize + 1;
+	      var patternList = new Uint16Array(ptune.buffer.slice(off, off + 32 * 2));
+	      for (var p = 0; p < 32; p++) {
+	        if (!patternList[p]) {
+	          _classPrivateFieldGet(this, _rad).patterns[p] = [];
+	          continue;
+	        }
+
+	        // calculate the length of each pattern in the stream and slice them into an array
+	        var offset = patternList[p];
+	        var line;
+	        do {
+	          line = ptune.getUint8(offset++);
+	          var ch;
+	          do {
+	            ch = ptune.getUint8(offset++);
+	            ptune.getUint8(offset++);
+	            var eff = ptune.getUint8(offset++);
+	            if (eff & 0x0f) offset++;
+	          } while (!(ch & 0x80));
+	        } while (!(line & 0x80));
+	        _classPrivateFieldGet(this, _rad).patterns[p] = new Uint8Array(ptune.buffer.slice(patternList[p], offset));
+	      }
+	    }
+	  }, {
+	    key: "update",
+	    value: function update() {
+	      this.rad_update_frame();
 	    }
 	  }, {
 	    key: "rewind",
@@ -5262,7 +5266,7 @@
 	  return ret;
 	}
 
-	var processor = "class WorkletProcessor extends AudioWorkletProcessor {\r\n    constructor() {\r\n        super();\r\n        this.port.onmessage = (e) => {\r\n            switch (e.data.cmd) {\r\n                case \"OPL3\": {\r\n                    // self is needed for browserify'd module\r\n                    // rollup's umd doesn't need it\r\n                    const opl3module = new Function(\"self\", e.data.value);\r\n                    opl3module(globalThis);\r\n                    console.log(globalThis)\r\n\r\n                    this.player = new OPL3.WorkletPlayer(this.port.postMessage, e.data.options || {});\r\n                    console.log(this.player)\r\n\r\n                    break;\r\n                }\r\n                case \"load\": {\r\n                    this.player.load(e.data.value);\r\n                    break;\r\n                }\r\n                case \"play\": {\r\n                    break;\r\n                }\r\n                case \"stop\": {\r\n                    break;\r\n                }\r\n            }\r\n        }\r\n    }\r\n\r\n    process(inputs, outputs, parameters) {\r\n        // Float32Array(128)\r\n        this.player.update(outputs[0]);\r\n        this.port.postMessage({ cmd: \"currentTime\", value: { currentFrame, currentTime } })\r\n        this.port.postMessage({ cmd: \"rad\", value: this.player.format_player?.getContext() || 0 })\r\n\r\n        return true;\r\n    }\r\n}\r\n\r\nregisterProcessor(\"opl3-generator\", WorkletProcessor);\r\n";
+	var processor = "class WorkletProcessor extends AudioWorkletProcessor {\r\n    constructor() {\r\n        super();\r\n        this.port.onmessage = (e) => {\r\n            switch (e.data.cmd) {\r\n                case \"OPL3\": {\r\n                    // self is needed for browserify'd module\r\n                    // rollup's umd doesn't need it\r\n                    const opl3module = new Function(\"self\", e.data.value);\r\n                    opl3module(globalThis);\r\n                    console.log(globalThis)\r\n\r\n                    this.player = new OPL3.WorkletPlayer(this.port.postMessage, e.data.options || {});\r\n                    console.log(this.player)\r\n\r\n                    break;\r\n                }\r\n                case \"load\": {\r\n                    this.player.load(e.data.value);\r\n                    break;\r\n                }\r\n                case \"play\": {\r\n                    break;\r\n                }\r\n                case \"stop\": {\r\n                    break;\r\n                }\r\n            }\r\n        }\r\n    }\r\n\r\n    process(inputs, outputs, parameters) {\r\n        // Float32Array(128)\r\n        this.player.update(outputs[0]);\r\n        this.port.postMessage({ cmd: \"currentTime\", value: { currentFrame, currentTime } })\r\n        this.port.postMessage({ cmd: \"context\", value: this.player.format?.getContext() || 0 })\r\n\r\n        return true;\r\n    }\r\n}\r\n\r\nregisterProcessor(\"opl3-generator\", WorkletProcessor);\r\n";
 
 	var currentScriptSrc = null;
 	try {
@@ -5454,7 +5458,7 @@
 	      writable: true,
 	      value: {}
 	    });
-	    _defineProperty(this, "format_player", null);
+	    _defineProperty(this, "format", null);
 	    _classPrivateFieldInitSpec(this, _samplesBuffer, {
 	      writable: true,
 	      value: null
@@ -5499,10 +5503,10 @@
 	    key: "load",
 	    value: function load(buffer) {
 	      if (buffer instanceof ArrayBuffer) buffer = new Buffer.from(buffer);
-	      var format = this.detectFormat(buffer);
-	      if (!format) throw 'File format not detected';
-	      this.format_player = new format(new OPL3(), _classPrivateFieldGet(this, _options));
-	      this.format_player.load(buffer);
+	      var formatType = this.detectFormat(buffer);
+	      if (!formatType) throw 'File format not detected';
+	      this.format = new formatType(new OPL3(), _classPrivateFieldGet(this, _options));
+	      this.format.load(buffer);
 	      _classPrivateFieldSet(this, _samplesBuffer, new Float32Array(_classPrivateFieldGet(this, _options).bufferSize * 2));
 	      this.sampleRate = _classPrivateFieldGet(this, _options).sampleRate || 48000;
 	      _classPrivateFieldSet(this, _chunkSize, 0);
@@ -5510,23 +5514,23 @@
 	  }, {
 	    key: "update",
 	    value: function update(outputs) {
-	      if (!this.format_player || !outputs) return;
+	      if (!this.format || !outputs) return;
 	      var seek = 0;
 	      _classPrivateFieldGet(this, _samplesBuffer).fill(0.0);
 	      if (_classPrivateFieldGet(this, _chunkSize) === 0) {
-	        this.format_player.update();
-	        _classPrivateFieldSet(this, _chunkSize, 2 * (this.sampleRate * this.format_player.refresh() | 0));
+	        this.format.update();
+	        _classPrivateFieldSet(this, _chunkSize, 2 * (this.sampleRate * this.format.refresh() | 0));
 	      }
 	      if (_classPrivateFieldGet(this, _chunkSize) < _classPrivateFieldGet(this, _options).bufferSize * 2) {
-	        this.format_player.opl.read(_classPrivateFieldGet(this, _samplesBuffer), seek, _classPrivateFieldGet(this, _chunkSize));
+	        this.format.opl.read(_classPrivateFieldGet(this, _samplesBuffer), seek, _classPrivateFieldGet(this, _chunkSize));
 	        seek += _classPrivateFieldGet(this, _chunkSize);
-	        this.format_player.update();
-	        _classPrivateFieldSet(this, _chunkSize, 2 * (this.sampleRate * this.format_player.refresh() | 0));
+	        this.format.update();
+	        _classPrivateFieldSet(this, _chunkSize, 2 * (this.sampleRate * this.format.refresh() | 0));
 	      }
 	      if (_classPrivateFieldGet(this, _chunkSize) > 0) {
 	        var samplesSize = Math.min(_classPrivateFieldGet(this, _options).bufferSize * 2 - seek, _classPrivateFieldGet(this, _chunkSize));
 	        _classPrivateFieldSet(this, _chunkSize, _classPrivateFieldGet(this, _chunkSize) - samplesSize);
-	        this.format_player.opl.read(_classPrivateFieldGet(this, _samplesBuffer), seek);
+	        this.format.opl.read(_classPrivateFieldGet(this, _samplesBuffer), seek);
 
 	        // convert interleaved channels into separate ones
 	        for (var i = 0; i < _classPrivateFieldGet(this, _samplesBuffer).length; i += 2) {
