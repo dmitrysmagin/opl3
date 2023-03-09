@@ -4552,19 +4552,19 @@
 	        currentLine: 0,
 	        instruments: new Array(32),
 	        //pInstr: [], // 31
-	        Old43: [],
+	        Old43: new Uint8Array(9),
 	        // 9
-	        OldA0B0: [],
+	        OldA0B0: new Uint16Array(9),
 	        // 9
-	        ToneSlideSpeed: [],
+	        ToneSlideSpeed: new Uint8Array(9),
 	        // 9
-	        ToneSlideFreq: [],
+	        ToneSlideFreq: new Uint16Array(9),
 	        // 9
-	        ToneSlide: [],
+	        ToneSlide: new Int8Array(9),
 	        // 9
-	        PortSlide: [],
+	        PortSlide: new Int8Array(9),
 	        // 9
-	        VolSlide: [],
+	        VolSlide: new Int8Array(9),
 	        // 9
 
 	        pattern_jmp_f: 0
@@ -4579,12 +4579,171 @@
 	    this.opl = opl;
 	  }
 	  _createClass(RAD, [{
+	    key: "rad_adlib_write",
+	    value: function rad_adlib_write(reg, value) {
+	      this.opl.write(0, reg, value);
+	    }
+	  }, {
+	    key: "rad_load_instrument",
+	    value: function rad_load_instrument(channel, ins) {
+	      var r = this.rad_ChannelOffs[channel];
+	      var p = _classPrivateFieldGet(this, _rad).instruments[ins];
+	      if (p.length) {
+	        _classPrivateFieldGet(this, _rad).Old43[channel] = p[2];
+	        for (var i = 0; i < 4; i++) {
+	          this.rad_adlib_write(i * 0x20 + r, p[i * 2 + 1]);
+	          this.rad_adlib_write(i * 0x20 + r + 3, p[i * 2]);
+	        }
+	        this.rad_adlib_write(r + 0xe0, p[10]);
+	        this.rad_adlib_write(r + 0xe3, p[9]);
+	        this.rad_adlib_write(channel + 0xc0, p[8]);
+	      }
+	    }
+	  }, {
+	    key: "rad_set_volume",
+	    value: function rad_set_volume(channel, new_volume) {
+	      if (new_volume > 63) new_volume = 63;
+	      _classPrivateFieldGet(this, _rad).Old43[channel] = (_classPrivateFieldGet(this, _rad).Old43[channel] & 0xc0) + (new_volume ^ 0x3f);
+	      this.rad_adlib_write(this.rad_ChannelOffs[channel] + 0x23, _classPrivateFieldGet(this, _rad).Old43[channel]);
+	    }
+	  }, {
+	    key: "rad_get_freq",
+	    value: function rad_get_freq(ch) {
+	      var freq = _classPrivateFieldGet(this, _rad).OldA0B0[ch] & 0x3ff;
+	      var octave = _classPrivateFieldGet(this, _rad).OldA0B0[ch] >> 10 & 7;
+	      return freq - 0x157 + octave * (0x2ae - 0x157);
+	    }
+	  }, {
+	    key: "rad_set_freq",
+	    value: function rad_set_freq(ch, new_freq) {
+	      var freq = new_freq % (0x2ae - 0x157) + 0x157;
+	      var octave = new_freq / (0x2ae - 0x157);
+	      _classPrivateFieldGet(this, _rad).OldA0B0[ch] = _classPrivateFieldGet(this, _rad).OldA0B0[ch] & ~0x2000 | freq | octave << 10;
+	      this.rad_adlib_write(0xa0 + ch, _classPrivateFieldGet(this, _rad).OldA0B0[ch] & 0xff);
+	      this.rad_adlib_write(0xb0 + ch, _classPrivateFieldGet(this, _rad).OldA0B0[ch] >> 8);
+	    }
+	  }, {
 	    key: "rad_update_notes",
-	    value: function rad_update_notes() {}
+	    value: function rad_update_notes() {
+	      // process portamentos
+	      for (var i = 0; i <= 8; i++) {
+	        if (_classPrivateFieldGet(this, _rad).PortSlide[i]) this.rad_set_freq(i, this.rad_get_freq(i) + _classPrivateFieldGet(this, _rad).PortSlide[i]);
+	      }
+
+	      // process volume slides
+	      for (var _i = 0; _i <= 8; _i++) {
+	        var v = void 0;
+	        if (_classPrivateFieldGet(this, _rad).VolSlide[_i] > 0) {
+	          v = (_classPrivateFieldGet(this, _rad).Old43[_i] & 0x3f ^ 0x3f) - _classPrivateFieldGet(this, _rad).VolSlide[_i];
+	          if (v > 63) v = 63;
+	          this.rad_set_volume(_i, v);
+	        } else {
+	          v = (_classPrivateFieldGet(this, _rad).Old43[_i] & 0x3f ^ 0x3f) - _classPrivateFieldGet(this, _rad).VolSlide[_i];
+	          if (v < 0) v = 0;
+	          this.rad_set_volume(_i, v);
+	        }
+	      }
+
+	      // process tone slides
+	      for (var _i2 = 0; _i2 <= 8; _i2++) {
+	        if (_classPrivateFieldGet(this, _rad).ToneSlide[_i2]) {
+	          if (this.rad_get_freq(_i2) > _classPrivateFieldGet(this, _rad).ToneSlideFreq[_i2]) {
+	            if (this.rad_get_freq(_i2) - _classPrivateFieldGet(this, _rad).ToneSlideSpeed[_i2] < _classPrivateFieldGet(this, _rad).ToneSlideFreq[_i2]) {
+	              _classPrivateFieldGet(this, _rad).ToneSlide[_i2] = 0;
+	              this.rad_set_freq(_i2, _classPrivateFieldGet(this, _rad).ToneSlideFreq[_i2]);
+	              continue;
+	              //goto _jmp_0;
+	            }
+
+	            this.rad_set_freq(_i2, this.rad_get_freq(_i2) - _classPrivateFieldGet(this, _rad).ToneSlideSpeed[_i2]);
+	          } else {
+	            if (this.rad_get_freq(_i2) < _classPrivateFieldGet(this, _rad).ToneSlideFreq[_i2]) {
+	              if (this.rad_get_freq(_i2) + _classPrivateFieldGet(this, _rad).ToneSlideSpeed[_i2] > _classPrivateFieldGet(this, _rad).ToneSlideFreq[_i2]) {
+	                _classPrivateFieldGet(this, _rad).ToneSlide[_i2] = 0;
+	                this.rad_set_freq(_i2, _classPrivateFieldGet(this, _rad).ToneSlideFreq[_i2]);
+	                continue;
+	                //goto _jmp_0;
+	              }
+
+	              this.rad_set_freq(_i2, this.rad_get_freq(_i2) + _classPrivateFieldGet(this, _rad).ToneSlideSpeed[_i2]);
+	            } else {
+	              //_jmp_0:
+	              _classPrivateFieldGet(this, _rad).ToneSlide[_i2] = 0;
+	              this.rad_set_freq(_i2, _classPrivateFieldGet(this, _rad).ToneSlideFreq[_i2]);
+	            }
+	          }
+	        }
+	      }
+	    }
 	  }, {
 	    key: "rad_playnote",
-	    value: function rad_playnote(ch, v0, v1, v3) {
-	      //console.log(`ch: ${ch}, ${note ? n[note - 1] : "  "}${note ? octave : " "} ${instrument || "-"}, eff: ${effect}=${effect_value}`)
+	    value: function rad_playnote(channel, v0, v1, v3) {
+	      var note = v0 & 0x0f;
+	      var octave = v0 >> 4 & 7;
+	      var instrument = v1 >> 4 & 3 | v0 >> 4;
+	      var effect = v1 & 0x0f;
+	      var effect_value = effect ? v3 : 0;
+
+	      // check if doing noteslide
+	      if (note && effect === 3) {
+	        _classPrivateFieldGet(this, _rad).ToneSlideFreq[channel] = octave * (0x2ae - 0x157) + this.rad_NoteFreq[note - 1] - 0x157;
+	        _classPrivateFieldGet(this, _rad).ToneSlide[channel] = 1;
+	        if (effect_value) _classPrivateFieldGet(this, _rad).ToneSlideSpeed[channel] = effect_value;
+	        return;
+	      }
+
+	      // play note
+	      if (note) {
+	        // first key off previous note
+	        _classPrivateFieldGet(this, _rad).OldA0B0[channel] &= ~0x2000;
+	        this.rad_adlib_write(0xb0 + channel, _classPrivateFieldGet(this, _rad).OldA0B0[channel] >> 8);
+	        if (instrument) {
+	          this.rad_set_volume(channel, 0);
+	          this.rad_load_instrument(channel, instrument);
+	        }
+	        if (note != 15) {
+	          _classPrivateFieldGet(this, _rad).OldA0B0[channel] = this.rad_NoteFreq[note - 1] | octave << 10 | 0x2000;
+	          this.rad_adlib_write(0xa0 + channel, _classPrivateFieldGet(this, _rad).OldA0B0[channel] & 0xff);
+	          this.rad_adlib_write(0xb0 + channel, _classPrivateFieldGet(this, _rad).OldA0B0[channel] >> 8);
+	        }
+	      }
+	      switch (effect) {
+	        case 1:
+	          // portamento up
+	          _classPrivateFieldGet(this, _rad).PortSlide[channel] = effect_value;
+	          break;
+	        case 2:
+	          // portamento down
+	          _classPrivateFieldGet(this, _rad).PortSlide[channel] = -effect_value;
+	          break;
+	        case 3:
+	          // portamento (no note given)
+	          if (effect_value) _classPrivateFieldGet(this, _rad).ToneSlideSpeed[channel] = effect_value;
+	          _classPrivateFieldGet(this, _rad).ToneSlide[channel] = 1;
+	          break;
+	        case 5:
+	          // tone+volume slide
+	          _classPrivateFieldGet(this, _rad).ToneSlide[channel] = 1;
+	        // no break after!!
+	        case 0x0a:
+	          // volume slide
+	          if (effect_value >= 50) _classPrivateFieldGet(this, _rad).VolSlide[channel] = -(effect_value - 50);else _classPrivateFieldGet(this, _rad).VolSlide[channel] = effect_value;
+	          break;
+	        case 0x0c:
+	          // set volume
+	          this.rad_set_volume(channel, effect_value);
+	          break;
+	        case 0x0d:
+	          // jump to line
+	          if (effect_value < 64) _classPrivateFieldGet(this, _rad).pattern_jmp_f = effect_value | 0x80;
+	          break;
+	        case 0x0f:
+	          // set speed
+	          _classPrivateFieldGet(this, _rad).speed = effect_value;
+	          break;
+	      }
+	      var n = ["C-", "C#", "D-", "D#", "E-", "F-", "F#", "G-", "G#", "A-", "A#", "B-"];
+	      console.log("ch: ".concat(channel, ", ").concat(note ? n[note - 1] : "  ").concat(note ? octave : " ", " ").concat(instrument || "-", ", eff: ").concat(effect, "=").concat(effect_value));
 	    }
 	  }, {
 	    key: "rad_next_pattern",
@@ -4630,7 +4789,6 @@
 
 	      off += _classPrivateFieldGet(this, _rad).orderSize + 1;
 	      var patternList = new Uint16Array(ptune.buffer.slice(off, off + 32 * 2));
-	      console.log(patternList);
 	      for (var p = 0; p < 32; p++) {
 	        if (!patternList[p]) {
 	          _classPrivateFieldGet(this, _rad).patterns[p] = [];
@@ -4652,7 +4810,7 @@
 	        } while (!(line & 0x80));
 	        _classPrivateFieldGet(this, _rad).patterns[p] = new Uint8Array(ptune.buffer.slice(patternList[p], offset));
 	      }
-	      console.log(_classPrivateFieldGet(this, _rad).patterns);
+	      console.log(_classPrivateFieldGet(this, _rad));
 	    }
 	  }, {
 	    key: "update",
