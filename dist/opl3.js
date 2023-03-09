@@ -4540,18 +4540,13 @@
 	      value: {
 	        speed: 6,
 	        speedCnt: 6,
-	        //pOrderList: null,
 	        orderSize: 0,
 	        order: [],
 	        orderPos: 0,
-	        //pPatternList: null,
-	        //pPatterns: [],
-	        //pPatternPos: null,
 	        patterns: new Array(32),
 	        patternPos: 0,
 	        currentLine: 0,
 	        instruments: new Array(32),
-	        //pInstr: [], // 31
 	        Old43: new Uint8Array(9),
 	        // 9
 	        OldA0B0: new Uint16Array(9),
@@ -4570,8 +4565,8 @@
 	        pattern_jmp_f: 0
 	      }
 	    });
-	    _defineProperty(this, "rad_NoteFreq", [0x16b, 0x181, 0x198, 0x1b0, 0x1ca, 0x1e5, 0x202, 0x220, 0x241, 0x263, 0x287, 0x2ae]);
-	    _defineProperty(this, "rad_ChannelOffs", [0x20, 0x21, 0x22, 0x28, 0x29, 0x2a, 0x30, 0x31, 0x32]);
+	    _defineProperty(this, "rad_NoteFreq", [0x157, 0x16b, 0x181, 0x198, 0x1b0, 0x1ca, 0x1e5, 0x202, 0x220, 0x241, 0x263, 0x287]);
+	    _defineProperty(this, "rad_ChannelOffs", [0x00, 0x01, 0x02, 0x08, 0x09, 0x0a, 0x10, 0x11, 0x12]);
 	    _classPrivateFieldInitSpec(this, _Hz, {
 	      writable: true,
 	      value: 50
@@ -4595,20 +4590,17 @@
 	      var p = _classPrivateFieldGet(this, _rad).instruments[ins];
 	      if (p.length) {
 	        _classPrivateFieldGet(this, _rad).Old43[channel] = p[2];
-
-	        //console.log(channel, ins, p.toString())
-
-	        this.rad_adlib_write(r, p[1]);
-	        this.rad_adlib_write(r + 3, p[0]);
-	        this.rad_adlib_write(r + 0x20, p[3]);
-	        this.rad_adlib_write(r + 0x20 + 3, p[2]);
-	        this.rad_adlib_write(r + 0x40, p[5]);
-	        this.rad_adlib_write(r + 0x40 + 3, p[4]);
-	        this.rad_adlib_write(r + 0x60, p[7]);
-	        this.rad_adlib_write(r + 0x60 + 3, p[6]);
-	        this.rad_adlib_write(r + 0xe0, p[10]);
-	        this.rad_adlib_write(r + 0xe3, p[9]);
+	        this.rad_adlib_write(r + 0x23, p[0]);
+	        this.rad_adlib_write(r + 0x20, p[1]);
+	        this.rad_adlib_write(r + 0x43, p[2]);
+	        this.rad_adlib_write(r + 0x40, p[3]);
+	        this.rad_adlib_write(r + 0x63, p[4]);
+	        this.rad_adlib_write(r + 0x60, p[5]);
+	        this.rad_adlib_write(r + 0x83, p[6]);
+	        this.rad_adlib_write(r + 0x80, p[7]);
 	        this.rad_adlib_write(channel + 0xc0, p[8]);
+	        this.rad_adlib_write(r + 0xe3, p[9]);
+	        this.rad_adlib_write(r + 0xe0, p[10]);
 	      }
 	    }
 	  }, {
@@ -4616,7 +4608,7 @@
 	    value: function rad_set_volume(channel, new_volume) {
 	      if (new_volume > 63) new_volume = 63;
 	      _classPrivateFieldGet(this, _rad).Old43[channel] = (_classPrivateFieldGet(this, _rad).Old43[channel] & 0xc0) + (new_volume ^ 0x3f);
-	      this.rad_adlib_write(this.rad_ChannelOffs[channel] + 0x23, _classPrivateFieldGet(this, _rad).Old43[channel]);
+	      this.rad_adlib_write(this.rad_ChannelOffs[channel] + 0x43, _classPrivateFieldGet(this, _rad).Old43[channel]);
 	    }
 	  }, {
 	    key: "rad_get_freq",
@@ -4754,9 +4746,6 @@
 	          _classPrivateFieldGet(this, _rad).speed = effect_value;
 	          break;
 	      }
-
-	      //const n = ["C-", "C#", "D-", "D#", "E-", "F-", "F#", "G-", "G#", "A-", "A#", "B-"]
-	      //console.log(`ch: ${channel}, ${note ? n[note - 1] : "  "}${note ? octave : " "} ${instrument || "-"}, eff: ${effect}=${effect_value}`)
 	    }
 	  }, {
 	    key: "rad_next_pattern",
@@ -4777,9 +4766,7 @@
 	      var speed = ptune.getUint8(off);
 	      _classPrivateFieldGet(this, _rad).speed = speed & 0x3f;
 	      _classPrivateFieldGet(this, _rad).speedCnt = _classPrivateFieldGet(this, _rad).speed - 1;
-	      console.log('Speed: ', _classPrivateFieldGet(this, _rad).speed);
 	      _classPrivateFieldSet(this, _Hz, speed & 0x60 ? 18.2 : 50);
-	      console.log('Timer: ', speed & 0x60 ? 18 : 50);
 	      if (speed & 0x80) {
 	        off++; // Skip description
 	        while (ptune.getUint8(off)) {
@@ -4797,9 +4784,6 @@
 	      off++;
 	      _classPrivateFieldGet(this, _rad).orderSize = ptune.getUint8(off);
 	      _classPrivateFieldGet(this, _rad).order = Array.from(new Uint8Array(ptune.buffer.slice(off + 1, off + 1 + _classPrivateFieldGet(this, _rad).orderSize)));
-	      //console.log('Order size: ', this.#rad.orderSize);
-	      //console.log(this.#rad.order);
-
 	      off += _classPrivateFieldGet(this, _rad).orderSize + 1;
 	      var patternList = new Uint16Array(ptune.buffer.slice(off, off + 32 * 2));
 	      for (var p = 0; p < 32; p++) {
@@ -4823,7 +4807,6 @@
 	        } while (!(line & 0x80));
 	        _classPrivateFieldGet(this, _rad).patterns[p] = new Uint8Array(ptune.buffer.slice(patternList[p], offset));
 	      }
-	      console.log(_classPrivateFieldGet(this, _rad));
 	    }
 	  }, {
 	    key: "update",
@@ -4844,9 +4827,6 @@
 	        _classPrivateFieldGet(this, _rad).VolSlide[_i3] = 0;
 	        _classPrivateFieldGet(this, _rad).PortSlide[_i3] = 0;
 	      }
-
-	      //console.log(this.#rad.orderPos, this.#rad.currentLine, i)
-
 	      if (i < p.length && (p[i] & 0x7f) === _classPrivateFieldGet(this, _rad).currentLine) {
 	        if (p[i] & 0x80) {
 	          // last line in the pattern?
