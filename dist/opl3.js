@@ -568,10 +568,9 @@
 	  // output: Int16Array | Float32Array
 	  _createClass(OPL3, [{
 	    key: "read",
-	    value: function read(output, seek, len) {
+	    value: function read(output, seek) {
 	      var offset = seek || 0;
 	      output = output || this.output;
-	      var output_length = len || output.length;
 	      var converterScale = output instanceof Float32Array ? 32768 : 1;
 	      do {
 	        var channelOutput, outputChannelNumber;
@@ -606,7 +605,7 @@
 	        this.tremoloIndex++;
 	        if (this.tremoloIndex >= OPL3Data.tremoloTable[this.dam].length) this.tremoloIndex = 0;
 	        offset += this.outputChannelNumber;
-	      } while (offset < output_length);
+	      } while (offset < output.length);
 	      return output;
 	    }
 	  }, {
@@ -5470,7 +5469,6 @@
 	    _defineProperty(this, "postMessage", null);
 	    this.postMessage = postMessage;
 	    _classPrivateFieldSet(this, _options, options || {});
-	    _classPrivateFieldGet(this, _options).bufferSize = 128; // length of output in processor    
 	  }
 	  _createClass(WorkletPlayer, [{
 	    key: "detectFormat",
@@ -5503,7 +5501,9 @@
 	      if (!formatType) throw 'File format not detected';
 	      this.format = new formatType(new OPL3(), _classPrivateFieldGet(this, _options));
 	      this.format.load(buffer);
-	      _classPrivateFieldSet(this, _samplesBuffer, new Float32Array(_classPrivateFieldGet(this, _options).bufferSize * 2));
+
+	      // buffer for 1 frame, L/R
+	      _classPrivateFieldSet(this, _samplesBuffer, new Float32Array(2));
 	      this.sampleRate = _classPrivateFieldGet(this, _options).sampleRate || 48000;
 	      _classPrivateFieldSet(this, _chunkSize, 0);
 	    }
@@ -5511,38 +5511,22 @@
 	    key: "update",
 	    value: function update(outputs) {
 	      if (!this.format || !outputs) return;
-	      var seek = 0;
-	      _classPrivateFieldGet(this, _samplesBuffer).fill(0.0);
-	      if (_classPrivateFieldGet(this, _chunkSize) === 0) {
-	        var _this$postMessage, _this$format;
-	        this.format.update();
-	        (_this$postMessage = this.postMessage) === null || _this$postMessage === void 0 ? void 0 : _this$postMessage.call(this, {
-	          cmd: "context",
-	          value: ((_this$format = this.format) === null || _this$format === void 0 ? void 0 : _this$format.getContext()) || 0
-	        });
-	        _classPrivateFieldSet(this, _chunkSize, 2 * (this.sampleRate * this.format.refresh() | 0));
-	      }
-	      if (_classPrivateFieldGet(this, _chunkSize) < _classPrivateFieldGet(this, _options).bufferSize * 2) {
-	        var _this$postMessage2, _this$format2;
-	        this.format.opl.read(_classPrivateFieldGet(this, _samplesBuffer), seek, _classPrivateFieldGet(this, _chunkSize));
-	        seek += _classPrivateFieldGet(this, _chunkSize);
-	        this.format.update();
-	        (_this$postMessage2 = this.postMessage) === null || _this$postMessage2 === void 0 ? void 0 : _this$postMessage2.call(this, {
-	          cmd: "context",
-	          value: ((_this$format2 = this.format) === null || _this$format2 === void 0 ? void 0 : _this$format2.getContext()) || 0
-	        });
-	        _classPrivateFieldSet(this, _chunkSize, 2 * (this.sampleRate * this.format.refresh() | 0));
-	      }
-	      if (_classPrivateFieldGet(this, _chunkSize) > 0) {
-	        var samplesSize = Math.min(_classPrivateFieldGet(this, _options).bufferSize * 2 - seek, _classPrivateFieldGet(this, _chunkSize));
-	        _classPrivateFieldSet(this, _chunkSize, _classPrivateFieldGet(this, _chunkSize) - samplesSize);
-	        this.format.opl.read(_classPrivateFieldGet(this, _samplesBuffer), seek);
-
-	        // convert interleaved channels into separate ones
-	        for (var i = 0; i < _classPrivateFieldGet(this, _samplesBuffer).length; i += 2) {
-	          outputs[0][i >> 1] = _classPrivateFieldGet(this, _samplesBuffer)[i];
-	          outputs[1][i >> 1] = _classPrivateFieldGet(this, _samplesBuffer)[i + 1];
+	      for (var i = 0; i < outputs[0].length; i++) {
+	        if (_classPrivateFieldGet(this, _chunkSize) <= 0) {
+	          var _this$postMessage, _this$format;
+	          this.format.update();
+	          this.format.getContext && ((_this$postMessage = this.postMessage) === null || _this$postMessage === void 0 ? void 0 : _this$postMessage.call(this, {
+	            cmd: "context",
+	            value: ((_this$format = this.format) === null || _this$format === void 0 ? void 0 : _this$format.getContext()) || 0
+	          }));
+	          _classPrivateFieldSet(this, _chunkSize, 2 * (this.sampleRate * this.format.refresh() | 0));
 	        }
+
+	        // Read one frame
+	        this.format.opl.read(_classPrivateFieldGet(this, _samplesBuffer));
+	        outputs[0][i] = _classPrivateFieldGet(this, _samplesBuffer)[0];
+	        outputs[1][i] = _classPrivateFieldGet(this, _samplesBuffer)[1];
+	        _classPrivateFieldSet(this, _chunkSize, _classPrivateFieldGet(this, _chunkSize) - 2);
 	      }
 	    }
 	  }]);
