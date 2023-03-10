@@ -5423,12 +5423,12 @@
 	  return Player;
 	}(EventEmitter);
 
-	var mainPlayer = /*#__PURE__*/Object.freeze({
+	var player = /*#__PURE__*/Object.freeze({
 		__proto__: null,
 		default: Player
 	});
 
-	var require$$6 = /*@__PURE__*/getAugmentedNamespace(mainPlayer);
+	var require$$6 = /*@__PURE__*/getAugmentedNamespace(player);
 
 	// To be executed inside AudioWorklet in AudioWorkletGlobalScope
 
@@ -5538,7 +5538,6 @@
 	    RAW: raw,
 	    RAD: rad
 	  },
-	  //Player: require('./lib/player'),
 	  Player: require$$6,
 	  WorkletPlayer: workletPlayer
 	};
