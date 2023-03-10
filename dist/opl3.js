@@ -4746,6 +4746,32 @@
 	      _classPrivateFieldGet(this, _rad).patternPos = 0;
 	    }
 	  }, {
+	    key: "rad_pattern_jmp_command",
+	    value: function rad_pattern_jmp_command() {
+	      // pattern jump command
+	      if (_classPrivateFieldGet(this, _rad).pattern_jmp_f & 0x80) {
+	        _classPrivateFieldGet(this, _rad).speedCnt = _classPrivateFieldGet(this, _rad).speed - 1;
+	        _classPrivateFieldGet(this, _rad).currentLine = _classPrivateFieldGet(this, _rad).pattern_jmp_f & 0x7f;
+	        this.rad_next_pattern();
+	        var i = _classPrivateFieldGet(this, _rad).patternPos;
+	        var p = _classPrivateFieldGet(this, _rad).patterns[_classPrivateFieldGet(this, _rad).order[_classPrivateFieldGet(this, _rad).orderPos] & 0x7f];
+	        while ((p[i] & 0x7f) < (_classPrivateFieldGet(this, _rad).pattern_jmp_f & 0x7f)) {
+	          if (p[i] & 0x80) {
+	            break;
+	          }
+	          i++;
+	          while (!(p[i] & 0x80)) {
+	            i += p[i + 2] & 0x0f ? 4 : 3;
+	          }
+	        }
+	        _classPrivateFieldGet(this, _rad).pattern_jmp_f = 0;
+	        _classPrivateFieldGet(this, _rad).patternPos = i;
+	        this.rad_update_notes();
+	        return true;
+	      }
+	      return false;
+	    }
+	  }, {
 	    key: "rad_update_frame",
 	    value: function rad_update_frame() {
 	      // offset inside each pattern
@@ -4775,31 +4801,7 @@
 
 	          this.rad_playnote(ch & 0x7f, p[i + 1], p[i + 2], e ? p[i + 3] : 0);
 	          i += e ? 4 : 3;
-
-	          // pattern jump command
-	          if (_classPrivateFieldGet(this, _rad).pattern_jmp_f & 0x80) {
-	            _classPrivateFieldGet(this, _rad).speedCnt = _classPrivateFieldGet(this, _rad).speed - 1;
-	            _classPrivateFieldGet(this, _rad).currentLine = _classPrivateFieldGet(this, _rad).pattern_jmp_f & 0x7f;
-	            this.rad_next_pattern();
-	            i = _classPrivateFieldGet(this, _rad).patternPos;
-	            p = _classPrivateFieldGet(this, _rad).patterns[_classPrivateFieldGet(this, _rad).order[_classPrivateFieldGet(this, _rad).orderPos] & 0x7f];
-	            while ((p[i] & 0x7f) < (_classPrivateFieldGet(this, _rad).pattern_jmp_f & 0x7f)) {
-	              if (p[i] & 0x80) {
-	                _classPrivateFieldGet(this, _rad).pattern_jmp_f = 0;
-	                _classPrivateFieldGet(this, _rad).patternPos = i;
-	                this.rad_update_notes();
-	                return;
-	              }
-	              i++;
-	              while (!(p[i] & 0x80)) {
-	                i += p[i + 2] & 0x0f ? 4 : 3;
-	              }
-	              _classPrivateFieldGet(this, _rad).pattern_jmp_f = 0;
-	              _classPrivateFieldGet(this, _rad).patternPos = i;
-	              this.rad_update_notes();
-	              return;
-	            }
-	          }
+	          if (this.rad_pattern_jmp_command()) return;
 	        } while (!(ch & 0x80));
 	        _classPrivateFieldGet(this, _rad).patternPos = i;
 	      }
