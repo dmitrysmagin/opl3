@@ -1904,27 +1904,6 @@
     default: OPL3$1
   });
 
-  function getAugmentedNamespace(n) {
-    var f = n.default;
-  	if (typeof f == "function") {
-  		var a = function () {
-  			return f.apply(this, arguments);
-  		};
-  		a.prototype = f.prototype;
-    } else a = {};
-    Object.defineProperty(a, '__esModule', {value: true});
-  	Object.keys(n).forEach(function (k) {
-  		var d = Object.getOwnPropertyDescriptor(n, k);
-  		Object.defineProperty(a, k, d.get ? d : {
-  			enumerable: true,
-  			get: function () {
-  				return n[k];
-  			}
-  		});
-  	});
-  	return a;
-  }
-
   var LAA$1 = /*#__PURE__*/function () {
     function LAA(opl, options) {
       _classCallCheck(this, LAA);
@@ -4522,7 +4501,9 @@
       value: function rad_load_instrument(channel, ins) {
         var r = this.channelOff[channel];
         var p = _classPrivateFieldGet(this, _rad).instruments[ins];
-        if (p.length) {
+
+        // fixed attempt to load zero instrument (skychase.rad)
+        if (p && p.length) {
           _classPrivateFieldGet(this, _rad).Old43[channel] = p[2];
           this.rad_adlib_write(r + 0x23, p[0]);
           this.rad_adlib_write(r + 0x20, p[1]);
@@ -5369,6 +5350,27 @@
     }]);
     return Player;
   }(EventEmitter);
+
+  function getAugmentedNamespace(n) {
+    var f = n.default;
+  	if (typeof f == "function") {
+  		var a = function () {
+  			return f.apply(this, arguments);
+  		};
+  		a.prototype = f.prototype;
+    } else a = {};
+    Object.defineProperty(a, '__esModule', {value: true});
+  	Object.keys(n).forEach(function (k) {
+  		var d = Object.getOwnPropertyDescriptor(n, k);
+  		Object.defineProperty(a, k, d.get ? d : {
+  			enumerable: true,
+  			get: function () {
+  				return n[k];
+  			}
+  		});
+  	});
+  	return a;
+  }
 
   var require$$0 = /*@__PURE__*/getAugmentedNamespace(opl3);
 
