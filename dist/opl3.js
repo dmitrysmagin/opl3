@@ -4458,7 +4458,10 @@
           if (invalidRegs.some(function (r) {
             return r === reg;
           })) {
-            console.log("Data: " + data.getUint8(position, true).toString(16) + " " + data.getUint8(position + 1, true).toString(16));
+            /*console.log("Data: " +
+                data.getUint8(position, true).toString(16) + " " +
+                data.getUint8(position + 1, true).toString(16)
+            );*/
 
             /* Corridor 7 tunes write to non existent regs c9 and ca */
             if (reg == 0xc9 || reg == 0xca) continue;
@@ -5512,16 +5515,21 @@
     }, {
       key: "load",
       value: function load(buffer) {
-        if (buffer instanceof ArrayBuffer) buffer = new Buffer.from(buffer);
-        var formatType = this.detectFormat(buffer);
-        if (!formatType) throw 'File format not detected';
-        this.format = new formatType(new OPL3(), _classPrivateFieldGet(this, _options));
-        this.format.load(buffer);
+        try {
+          if (buffer instanceof ArrayBuffer) buffer = new Buffer.from(buffer);
+          var formatType = this.detectFormat(buffer);
+          if (!formatType) throw 'File format not detected';
+          this.format = new formatType(new OPL3(), _classPrivateFieldGet(this, _options));
+          this.format.load(buffer);
 
-        // buffer for 1 frame, L/R
-        _classPrivateFieldSet(this, _samplesBuffer, new Float32Array(2));
-        this.sampleRate = _classPrivateFieldGet(this, _options).sampleRate || 48000;
-        _classPrivateFieldSet(this, _chunkSize, 0);
+          // buffer for 1 frame, L/R
+          _classPrivateFieldSet(this, _samplesBuffer, new Float32Array(2));
+          this.sampleRate = _classPrivateFieldGet(this, _options).sampleRate || 48000;
+          _classPrivateFieldSet(this, _chunkSize, 0);
+        } catch (error) {
+          this.format = null;
+          console.error(error);
+        }
       }
     }, {
       key: "update",
@@ -5551,7 +5559,9 @@
 
   var index = {
     OPL3: OPL3,
-    formats: [LAA, /*MUS,*/DRO, IMF, RAW, RAD],
+    formats: [LAA, /*MUS,*/DRO, RAW, RAD,
+    // Formats with no id (imf, hsc),
+    IMF],
     Player: Player,
     WorkletPlayer: WorkletPlayer
   };
