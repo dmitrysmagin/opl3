@@ -1,7 +1,13 @@
 /*
  * Adapted from sixpack.c by Philip G. Gage, April 1991
- * REFERENCE: https://github.com/70MM13/Step5Archive/blob/main/resources/sixpack/sixpack.c
-*/
+ * REFERENCES:
+ *     https://www.sac.sk/download/pack/ddjcompr.zip
+ *     https://github.com/70MM13/Step5Archive/blob/main/resources/sixpack/sixpack.c
+ *
+ * NOTE: When converting from C don't forget about type limiting guards:
+ * 1) Division is float, truncate to int: a = b / c | 0
+ * 2) Restrict bit shifts to type width (ushort in this case)
+ */
 
 
 
@@ -181,7 +187,7 @@ function sixdepak(source, dest, size) {
                     count = 0;
             } else {
                 t = c - FIRSTCODE;
-                index = t / CODESPERRANGE | 0; // int div
+                index = t / CODESPERRANGE | 0; // js: int div guard
                 len = t + MINCOPY - index * CODESPERRANGE;
                 dist = inputcode(copybits[index]) + len + copymin[index];
 
@@ -226,6 +232,9 @@ function sixdepak(source, dest, size) {
 
     decode();
 
+    buf = undefined;
+    wdbuf = undefined;
+
     return output_size;
 }
 
@@ -235,5 +244,118 @@ var output = new Uint8Array(11717); // sizeof(A2M_SONGDATA_V1_8)
 
 sixdepak(input, output, input.byteLength);
 
+/*
+typedef struct {
+    union {
+        struct {
+            uint8_t multipM: 4, ksrM: 1, sustM: 1, vibrM: 1, tremM : 1;
+            uint8_t multipC: 4, ksrC: 1, sustC: 1, vibrC: 1, tremC : 1;
+            uint8_t volM: 6, kslM: 2;
+            uint8_t volC: 6, kslC: 2;
+            uint8_t decM: 4, attckM: 4;
+            uint8_t decC: 4, attckC: 4;
+            uint8_t relM: 4, sustnM: 4;
+            uint8_t relC: 4, sustnC: 4;
+            uint8_t wformM: 3, : 5;
+            uint8_t wformC: 3, : 5;
+            uint8_t connect: 1, feedb: 3, : 4; // panning is not used here
+        };
+        uint8_t data[11];
+    };
+} tFM_INST_DATA;
+*/
+
+class tFM_INST_DATA {
+    constructor(uint8array /* Uint8Array */) {
+        this.data = uint8array; // 11 bytes
+        const keytable = {
+            multipM: [ 0, 0x0f, 0 ],
+            ksrM:    [ 0, 0x10, 4 ],
+            sustM:   [ 0, 0x20, 5 ],
+            vibrM:   [ 0, 0x40, 6 ],
+            tremM:   [ 0, 0x80, 6 ],
+            multipC: [ 1, 0x0f, 0 ],
+            ksrC:    [ 1, 0x10, 4 ],
+            sustC:   [ 1, 0x20, 5 ],
+            vibrC:   [ 1, 0x40, 6 ],
+            tremC:   [ 1, 0x80, 6 ],
+            volM:    [ 2, 0x3f, 0 ],
+            kslM:    [ 2, 0xc0, 6 ],
+            volC:    [ 3, 0x3f, 0 ],
+            kslC:    [ 3, 0xc0, 6 ],
+            decM:    [ 4, 0x0f, 0 ],
+            attckM:  [ 4, 0xf0, 4 ],
+            decC:    [ 5, 0x0f, 0 ],
+            attckC:  [ 5, 0xf0, 4 ],
+        };
+        return new Proxy(this, {
+            get(self, property) {
+                if (property == "data")
+                    return self["data"];
+                if (property in keytable) {
+                    const [ offset, mask, shift ] = keytable[property];
+                    return (self.data[offset] & mask) >> shift;
+                }
+
+                return undefined;
+            },
+            set(self, property, value) {
+                if (property == "data")
+                    self.data = value;
+                if (property in keytable) {
+                    const [ offset, mask, shift ] = keytable[property];
+                    self.data[offset] = (self.data[offset] & ~mask) | ((value << shift) & mask);
+                }
+            }
+        });
+    }
+}
+
+var ins1 = new tFM_INST_DATA([0xff, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+var d0 = ins1.data[0];
+var m = ins1.multipM;
+ins1.multipM = 7;
+var d1 = ins1.data[0];
+
+/*
+typedef struct {
+    char songname[43];
+    char composer[43];
+    char instr_names[250][33];
+    tINSTR_DATA_V1_8 instr_data[250];
+    uint8_t pattern_order[128];
+    uint8_t tempo;
+    uint8_t speed;
+    uint8_t common_flag; // A2M_SONGDATA_V5678
+} A2M_SONGDATA_V1_8;
+*/
+
+
+class A2M_SONGDATA_V1_8 {
+    constructor(buffer /* Uint8Array */) {
+        this._buffer = buffer;
+        this._songname = new Uint8Array(buffer.buffer, 0, 43);
+        this._composer = new Uint8Array(buffer.buffer, 0x2b, 43);
+        this._instr_names = new Array(250).fill(0).map((_, index) => {
+            return new Uint8Array(buffer.buffer, 0x56 + index * 33, 33);
+        });
+    }
+
+    get songname() {
+        return new TextDecoder().decode(this._songname);
+    }
+
+    get_inst_name(index) {
+        return new TextDecoder().decode(this._instr_names[index]);
+    }
+}
+
+var songinfo = new A2M_SONGDATA_V1_8(output);
+
 //process.stdout.write(output.slice(0, 48));
 fs.writeFileSync('./packtest/test', output);
+
+var name = songinfo.songname;
+var iname0 = songinfo.get_inst_name(0);
+
+process.stdout.write(name);
