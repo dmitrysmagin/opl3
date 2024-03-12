@@ -7,3 +7,4 @@ node_modules
 *.imf
 *.raw
 *.rad
+packtest/test
