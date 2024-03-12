@@ -287,26 +287,28 @@ class tFM_INST_DATA {
             attckM:  [ 4, 0xf0, 4 ],
             decC:    [ 5, 0x0f, 0 ],
             attckC:  [ 5, 0xf0, 4 ],
+            relM:    [ 6, 0x0f, 0 ],
+            sustnM:  [ 6, 0xf0, 4 ],
+            relC:    [ 7, 0x0f, 0 ],
+            sustnC:  [ 7, 0xf0, 4 ],
+            wformM:  [ 8, 0x03, 0 ],
+            wformC:  [ 9, 0x03, 0 ],
+            connect: [ 10, 0x01, 0 ],
+            feedb:   [ 10, 0x0e, 1 ]
         };
-        return new Proxy(this, {
-            get(self, property) {
-                if (property == "data")
-                    return self["data"];
-                if (property in keytable) {
-                    const [ offset, mask, shift ] = keytable[property];
-                    return (self.data[offset] & mask) >> shift;
-                }
 
-                return undefined;
-            },
-            set(self, property, value) {
-                if (property == "data")
-                    self.data = value;
-                if (property in keytable) {
-                    const [ offset, mask, shift ] = keytable[property];
-                    self.data[offset] = (self.data[offset] & ~mask) | ((value << shift) & mask);
-                }
-            }
+        // Dynamically generate getters/setters
+        Object.keys(keytable).forEach((key) => {
+            Object.defineProperty(this, key, {
+                get() {
+                    const [ offset, mask, shift ] = keytable[key];
+                    return (this.data[offset] & mask) >> shift;
+                },
+                set(value) {
+                    const [ offset, mask, shift ] = keytable[key];
+                    this.data[offset] = (this.data[offset] & ~mask) | ((value << shift) & mask);
+                },
+            });
         });
     }
 }
