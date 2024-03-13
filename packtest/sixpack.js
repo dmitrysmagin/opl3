@@ -263,11 +263,12 @@ typedef struct {
         uint8_t data[11];
     };
 } tFM_INST_DATA;
+
 */
 
 class tFM_INST_DATA {
-    constructor(uint8array /* Uint8Array */) {
-        this.data = uint8array; // 11 bytes
+    constructor(uint8array /* Uint8Array(11) */) {
+        this.data = uint8array;
         const keytable = {
             multipM: [ 0, 0x0f, 0 ],
             ksrM:    [ 0, 0x10, 4 ],
@@ -313,11 +314,37 @@ class tFM_INST_DATA {
     }
 }
 
-var ins1 = new tFM_INST_DATA([0xff, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
-var d0 = ins1.data[0];
-var m = ins1.multipM;
-ins1.multipM = 7;
-var d1 = ins1.data[0];
+/*
+typedef struct {
+    tFM_INST_DATA fm;
+    uint8_t panning;
+    int8_t  fine_tune;
+} tINSTR_DATA_V1_8;
+*/
+
+class tINSTR_DATA_V1_8 {
+    constructor(uint8array /* Uint8Array(13) */) {
+        const { buffer, byteOffset } = uint8array;
+        const view = new DataView(buffer, byteOffset, 13);
+
+        this.fm = new tFM_INST_DATA(new Uint8Array(buffer, byteOffset, 11));
+
+        Object.defineProperty(this, "panning", {
+            get() { return view.getUint8(11); },
+            set(value) { view.setUint8(11, value); }
+        });
+        Object.defineProperty(this, "fine_tune", {
+            get() { return view.getInt8(12) },
+            set(value) { view.setInt8(11, value); }
+        });
+    }
+}
+
+/*var ins1 = new tINSTR_DATA_V1_8(new Uint8Array([0xff, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, -5]));
+var d0 = ins1.fm.data[0];
+var m = ins1.fm.multipM;
+ins1.fm.multipM = 7;
+var d1 = ins1.fine_tune;*/
 
 /*
 typedef struct {
@@ -334,12 +361,16 @@ typedef struct {
 
 
 class A2M_SONGDATA_V1_8 {
-    constructor(buffer /* Uint8Array */) {
-        this._buffer = buffer;
-        this._songname = new Uint8Array(buffer.buffer, 0, 43);
-        this._composer = new Uint8Array(buffer.buffer, 0x2b, 43);
+    constructor(songdata /* Uint8Array(11717) */) {
+        const { buffer, byteOffset } = songdata;
+        //this._buffer = songdata;
+        this._songname = new Uint8Array(buffer, byteOffset + 0, 43);
+        this._composer = new Uint8Array(buffer, byteOffset + 0x2b, 43);
         this._instr_names = new Array(250).fill(0).map((_, index) => {
-            return new Uint8Array(buffer.buffer, 0x56 + index * 33, 33);
+            return new Uint8Array(buffer, byteOffset + 0x56 + index * 33, 33);
+        });
+        this.instr_data = new Array(250).fill(0).map((_, i) => {
+            return new tINSTR_DATA_V1_8(new Uint8Array(buffer, byteOffset + 0x2090 + i * 13, 13));
         });
     }
 
@@ -359,5 +390,6 @@ fs.writeFileSync('./packtest/test', output);
 
 var name = songinfo.songname;
 var iname0 = songinfo.get_inst_name(0);
+var ins1 = songinfo.instr_data[0];
 
 process.stdout.write(name);
