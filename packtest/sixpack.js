@@ -363,23 +363,36 @@ typedef struct {
 class A2M_SONGDATA_V1_8 {
     constructor(songdata /* Uint8Array(11717) */) {
         const { buffer, byteOffset } = songdata;
-        //this._buffer = songdata;
-        this._songname = new Uint8Array(buffer, byteOffset + 0, 43);
-        this._composer = new Uint8Array(buffer, byteOffset + 0x2b, 43);
-        this._instr_names = new Array(250).fill(0).map((_, index) => {
+
+        this.songname = new Uint8Array(buffer, byteOffset + 0, 43);
+        this.composer = new Uint8Array(buffer, byteOffset + 0x2b, 43);
+        this.instr_names = new Array(250).fill(0).map((_, index) => {
             return new Uint8Array(buffer, byteOffset + 0x56 + index * 33, 33);
         });
         this.instr_data = new Array(250).fill(0).map((_, i) => {
             return new tINSTR_DATA_V1_8(new Uint8Array(buffer, byteOffset + 0x2090 + i * 13, 13));
         });
+        this.pattern_order = new Uint8Array(buffer, byteOffset + 0x2d42, 128);
+        Object.defineProperty(this, "tempo", {
+            get() { return songdata[0x2dc2]; },
+            set(value) { songdata[0x2dc2] = value; }
+        });
+        Object.defineProperty(this, "speed", {
+            get() { return songdata[0x2dc3]; },
+            set(value) { songdata[0x2dc3] = value; }
+        });
+        Object.defineProperty(this, "common_flag", {
+            get() { return songdata[0x2dc4]; },
+            set(value) { songdata[0x2dc4] = value; }
+        });
     }
 
-    get songname() {
-        return new TextDecoder().decode(this._songname);
+    get_songname() {
+        return new TextDecoder().decode(this.songname);
     }
 
     get_inst_name(index) {
-        return new TextDecoder().decode(this._instr_names[index]);
+        return new TextDecoder().decode(this.instr_names[index]);
     }
 }
 
@@ -388,8 +401,8 @@ var songinfo = new A2M_SONGDATA_V1_8(output);
 //process.stdout.write(output.slice(0, 48));
 fs.writeFileSync('./packtest/test', output);
 
-var name = songinfo.songname;
-var iname0 = songinfo.get_inst_name(0);
+var name = songinfo.get_songname();
+var iname0 = songinfo.get_inst_name(1);
 var ins1 = songinfo.instr_data[0];
 
 process.stdout.write(name);
