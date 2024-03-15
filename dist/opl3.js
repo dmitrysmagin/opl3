@@ -5378,6 +5378,7 @@
                     value: this.opl3module,
                     options: _classPrivateFieldGet(this, _options$1)
                   });
+                  // Redirect postMessage from worklet to player.on() handlers
                   this.worklet.port.onmessage = function (e) {
                     return _this2.emit(e.data.cmd, e.data.value);
                   };
