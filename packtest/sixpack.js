@@ -5,8 +5,9 @@
  *     https://github.com/70MM13/Step5Archive/blob/main/resources/sixpack/sixpack.c
  *
  * NOTE: When converting from C don't forget about type limiting guards:
- * 1) Division is float, truncate to int: a = b / c | 0
- * 2) Restrict bit shifts to type width (ushort in this case)
+ * 1) Division gives float result, truncate to int: a = b / c | 0
+ * 2) Restrict bit shifts to type width (ushort in this case): a <<= 1; a &= 0xffff;
+ * 
  */
 
 
