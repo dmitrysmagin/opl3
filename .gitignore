@@ -8,3 +8,5 @@ node_modules
 *.raw
 *.rad
 packtest/test
+dist/*
+1

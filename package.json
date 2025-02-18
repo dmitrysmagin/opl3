@@ -5,14 +5,14 @@
     "main": "lib/index.js",
     "preferGlobal": true,
     "scripts": {
-        "rollup": "rollup -c",
+        "build": "rollup -c",
         "postbundle": "uglifyjs dist/opl3.js > dist/opl3.min.js",
         "lint": "./node_modules/.bin/eslint -c ./.eslintrc.json lib/**/*.js ./*.js",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "repository": {
         "type": "git",
-        "url": "git://github.com/doomjs/opl3.git"
+        "url": "git://github.com/dmitrysmagin/opl3.git"
     },
     "keywords": [
         "opl",
