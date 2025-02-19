@@ -66,4 +66,4 @@ Then it could be invoked in the main script:
         player.stop();
 ```
 
-Full example [here](https://github.com/dmitrysmagin/opl3/example/webaudio.html)
+Full example [here](https://github.com/dmitrysmagin/opl3/blob/master/example/webaudio.html)
