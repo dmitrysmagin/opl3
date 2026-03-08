@@ -362,33 +362,39 @@ typedef struct {
 
 
 class A2M_SONGDATA_V1_8 {
-    constructor(songdata /* Uint8Array(11717) */) {
-        const { buffer, byteOffset } = songdata;
+    songdata; // Uint8Array(11717)
 
+    constructor(uint8array /* Uint8Array(11717) */) {
+        // Clone array
+        this.songdata = new Uint8Array(uint8array);
+        const { buffer, byteOffset } = this.songdata;
+
+        // Map data literally, so all properties are connected to this.songdata
         this.songname = new Uint8Array(buffer, byteOffset + 0, 43);
         this.composer = new Uint8Array(buffer, byteOffset + 0x2b, 43);
-        this.instr_names = new Array(250).fill(0).map((_, index) => {
-            return new Uint8Array(buffer, byteOffset + 0x56 + index * 33, 33);
-        });
-        this.instr_data = new Array(250).fill(0).map((_, i) => {
-            return new tINSTR_DATA_V1_8(new Uint8Array(buffer, byteOffset + 0x2090 + i * 13, 13));
-        });
+        this.instr_names = new Array(250).fill(0).map((_, index) =>
+            new Uint8Array(buffer, byteOffset + 0x56 + index * 33, 33)
+        );
+        this.instr_data = new Array(250).fill(0).map((_, i) =>
+            new tINSTR_DATA_V1_8(new Uint8Array(buffer, byteOffset + 0x2090 + i * 13, 13))
+        );
         this.pattern_order = new Uint8Array(buffer, byteOffset + 0x2d42, 128);
         Object.defineProperty(this, "tempo", {
-            get() { return songdata[0x2dc2]; },
-            set(value) { songdata[0x2dc2] = value; }
+            get() { return this.songdata[0x2dc2]; },
+            set(value) { this.songdata[0x2dc2] = value; }
         });
         Object.defineProperty(this, "speed", {
-            get() { return songdata[0x2dc3]; },
-            set(value) { songdata[0x2dc3] = value; }
+            get() { return this.songdata[0x2dc3]; },
+            set(value) { this.songdata[0x2dc3] = value; }
         });
         Object.defineProperty(this, "common_flag", {
-            get() { return songdata[0x2dc4]; },
-            set(value) { songdata[0x2dc4] = value; }
+            get() { return this.songdata[0x2dc4]; },
+            set(value) { this.songdata[0x2dc4] = value; }
         });
     }
 
-    get_songname() {
+    // Additional helper methods
+    get songname_tostring() {
         return new TextDecoder().decode(this.songname);
     }
 
@@ -402,8 +408,9 @@ var songinfo = new A2M_SONGDATA_V1_8(output);
 //process.stdout.write(output.slice(0, 48));
 fs.writeFileSync('./packtest/test', output);
 
-var name = songinfo.get_songname();
-var iname0 = songinfo.get_inst_name(1);
-var ins1 = songinfo.instr_data[0];
+var name = songinfo.songname_tostring;
+var iname0 = songinfo.get_inst_name(2);
+var ins1 = songinfo.instr_data[1];
 
-process.stdout.write(name);
+//process.stdout.write(iname0);
+console.dir(ins1.fm.multipC, { depth: null });
