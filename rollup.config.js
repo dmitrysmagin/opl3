@@ -13,7 +13,7 @@ const plugins = [
     //commonjs({ transformMixedEsModules: true }),
     //nodeResolve({ browser: true, preferBuiltins: true, }),
     babel({ babelHelpers: 'bundled' }),
-    globals(),
+    //globals(),
     builtins(),
     terser(),
 ]
