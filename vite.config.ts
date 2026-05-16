@@ -19,6 +19,9 @@ export default defineConfig(({ mode }) => {
     }
 
     return {
+        server: {
+            open: '/src/index.html',
+        },
         build: {
             lib: {
                 entry: resolve(__dirname, 'src/lib/index.ts'),
@@ -29,7 +32,6 @@ export default defineConfig(({ mode }) => {
             outDir: resolve(__dirname, 'dist'),
             emptyOutDir: false,
             minify: true,
-
         },
     };
 });

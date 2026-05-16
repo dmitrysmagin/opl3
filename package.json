@@ -4,6 +4,7 @@
     "description": "OPL3 emulator library",
     "main": "dist/opl3.js",
     "scripts": {
+        "dev": "vite",
         "build:worklet": "vite build --mode worklet",
         "build": "npm run build:worklet && vite build",
         "typecheck": "tsc --noEmit",
