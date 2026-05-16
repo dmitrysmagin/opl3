@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>OPL3</title>
+	<script type="text/javascript" src="../dist/opl3.js"></script>
+</head>
+<body>
+    <div class="counter"></div>
+    <div>
+        <input
+            type="file"
+            accept=".raw,.dro,.laa,.imf,.rad"
+            onchange="loadFileWorklet(this.files)">
+    </div>
+    <div>
+        <button onclick="PlayerStop()">Stop</button>
+        <button onclick="PlayerPause()">Pause</button>
+        <button onclick="PlayerResume()">Resume</button>
+    </div>
+    <div>
+        <pre id="info"></pre>
+    </div>
+
+    <script type="text/javascript">
+        var counter = document.querySelector(".counter");
+        var info = document.querySelector("#info");
+        var player = new OPL3.Player({ prebuffer: 3000, sampleRate: 48000 });
+
+        player.on("currentTime", (value) => {
+            counter.innerHTML = `currentFrame: ${value.currentFrame}, currentTime: ${value.currentTime.toFixed(2)} s`;
+        })
+        player.on("context", (value) => {
+            if (value) {
+                delete value.patterns;
+                delete value.instruments;
+                info.innerHTML = JSON.stringify(value, (key, value) => {
+                    if (key == "OldA0B0") {
+                        return [...value].map(v => ("000" + v.toString(16)).slice(-4))
+                    }
+                    return value;
+                }, 4);
+            }
+        })
+
+        function FileToArrayBuffer(file /*: File*/) {
+            const fileReader = new FileReader();
+
+            return new Promise((resolve, reject) => {
+                fileReader.onerror = () => {
+                    fileReader.abort();
+                    reject(new Error('Problem parsing input file'))
+                };
+
+                fileReader.onload = () => {
+                    resolve(fileReader.result);
+                };
+
+                fileReader.readAsArrayBuffer(file);
+            });
+        }
+
+        async function loadFileWorklet(files /*: FileList*/) {
+            if (files instanceof FileList && files.length) {
+                var file = files[0];
+                var data /*ArrayBuffer*/ = await FileToArrayBuffer(file);
+
+                player.play(data);
+            }
+        }
+    
+        function PlayerPause() {
+            player.pause();
+        }
+
+        function PlayerResume() {
+            player.resume();
+        }
+
+        function PlayerStop() {
+            player.stop();
+        }
+
+	</script>
+</body>
+</html>
